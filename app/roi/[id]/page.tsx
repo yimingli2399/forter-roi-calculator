@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createServerClient } from '@/lib/supabase/server'
 import ROICalculatorClient from './ROICalculatorClient'
+import type { Database } from '@/lib/supabase/database.types'
 
 export default async function ROIPage({ params }: { params: { id: string } }) {
   const supabase = createServerClient()
@@ -24,11 +25,14 @@ export default async function ROIPage({ params }: { params: { id: string } }) {
     redirect('/dashboard')
   }
 
+  type SessionRow = Database['public']['Tables']['roi_sessions']['Row']
+  const typedSessionData = sessionData as SessionRow
+
   // Log session data for debugging
   console.log('Loaded session data:', {
-    id: sessionData.id,
-    title: sessionData.title,
-    company_name: sessionData.company_name,
+    id: typedSessionData.id,
+    title: typedSessionData.title,
+    company_name: typedSessionData.company_name,
   })
 
   // RLS policies handle access control
@@ -39,8 +43,8 @@ export default async function ROIPage({ params }: { params: { id: string } }) {
     user_id: session.user.id,
     session_id: params.id,
     action: 'view',
-  })
+  } as any)
 
-  return <ROICalculatorClient sessionData={sessionData} />
+  return <ROICalculatorClient sessionData={typedSessionData} />
 }
 

@@ -1,4 +1,5 @@
 import html2canvas from 'html2canvas'
+// @ts-ignore - jspdf types may not be available
 import { jsPDF } from 'jspdf'
 
 export async function exportToPDF(element: HTMLElement, title: string): Promise<void> {

@@ -51,6 +51,7 @@ export default function RegisterPage() {
       // Update user role (organization is no longer needed)
       const { error: userError } = await supabase
         .from('users')
+        // @ts-ignore - Supabase type inference issue
         .update({ role: 'admin' })
         .eq('id', authData.user.id)
 

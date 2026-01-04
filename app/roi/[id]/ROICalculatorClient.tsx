@@ -45,7 +45,7 @@ export default function ROICalculatorClient({ sessionData }: ROICalculatorClient
       sessionData.data !== null &&
       'annualAttempts' in sessionData.data
     ) {
-      return sessionData.data as CalculationInputs
+      return sessionData.data as unknown as CalculationInputs
     }
 
     // Default values
@@ -115,6 +115,7 @@ export default function ROICalculatorClient({ sessionData }: ROICalculatorClient
 
         const { error } = await supabase
           .from('roi_sessions')
+          // @ts-ignore - Supabase type inference issue
           .update(updateData)
           .eq('id', sessionData.id)
 
@@ -150,6 +151,7 @@ export default function ROICalculatorClient({ sessionData }: ROICalculatorClient
     try {
       const { error } = await supabase
         .from('roi_sessions')
+        // @ts-ignore - Supabase type inference issue
         .update({ is_favorite: newFavoriteStatus })
         .eq('id', sessionData.id)
 
@@ -226,7 +228,7 @@ export default function ROICalculatorClient({ sessionData }: ROICalculatorClient
       // Try to insert without is_favorite first, if it fails due to missing column, retry
       const { data: duplicatedSession, error } = await supabase
         .from('roi_sessions')
-        .insert(insertData)
+        .insert(insertData as any)
         .select()
         .single()
 
@@ -240,7 +242,7 @@ export default function ROICalculatorClient({ sessionData }: ROICalculatorClient
               company_name: companyName || null,
               created_by: sessionData.created_by,
               data: inputs as any,
-            })
+            } as any)
             .select()
             .single()
 
@@ -253,7 +255,9 @@ export default function ROICalculatorClient({ sessionData }: ROICalculatorClient
           )
 
           if (shouldSwitch && retryData) {
-            router.push(`/roi/${retryData.id}`)
+            type SessionRow = Database['public']['Tables']['roi_sessions']['Row']
+            const typedRetryData = retryData as SessionRow
+            router.push(`/roi/${typedRetryData.id}`)
             router.refresh()
           } else {
             setSaving(false)
@@ -268,7 +272,9 @@ export default function ROICalculatorClient({ sessionData }: ROICalculatorClient
       )
 
       if (shouldSwitch && duplicatedSession) {
-        router.push(`/roi/${duplicatedSession.id}`)
+        type SessionRow = Database['public']['Tables']['roi_sessions']['Row']
+        const typedDuplicatedSession = duplicatedSession as SessionRow
+        router.push(`/roi/${typedDuplicatedSession.id}`)
         router.refresh()
       } else {
         setSaving(false)

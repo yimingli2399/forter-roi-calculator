@@ -3,13 +3,13 @@
 import { formatNumber, formatCurrency } from '@/lib/utils/formatters'
 import type { ScenarioResults } from '@/lib/utils/calculations'
 import type { Language } from '@/lib/utils/translations'
-import type { Translations } from '@/lib/utils/translations'
+import { getTranslation, type Translations } from '@/lib/utils/translations'
 
 interface ResultsDisplayProps {
   base: ScenarioResults
   comp: ScenarioResults
   lang: Language
-  t: Translations[Language]
+  t: ReturnType<typeof getTranslation>
 }
 
 export default function ResultsDisplay({ base, comp, lang, t }: ResultsDisplayProps) {

@@ -5,13 +5,13 @@ import InputField from './InputField'
 import ScenarioInputs from './ScenarioInputs'
 import type { CalculationInputs, ScenarioInputs as ScenarioInputsType } from '@/lib/utils/calculations'
 import type { Language } from '@/lib/utils/translations'
-import type { Translations } from '@/lib/utils/translations'
+import { getTranslation, type Translations } from '@/lib/utils/translations'
 
 interface InputFormSectionProps {
   inputs: CalculationInputs
   onInputsChange: (inputs: CalculationInputs) => void
   lang: Language
-  t: Translations[Language]
+  t: ReturnType<typeof getTranslation>
 }
 
 export default function InputFormSection({

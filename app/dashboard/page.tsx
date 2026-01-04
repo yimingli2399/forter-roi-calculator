@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createServerClient } from '@/lib/supabase/server'
 import DashboardClient from './DashboardClient'
+import type { Database } from '@/lib/supabase/database.types'
 
 export default async function DashboardPage() {
   const supabase = createServerClient()
@@ -32,7 +33,8 @@ export default async function DashboardPage() {
     .limit(50)
 
   // Get creator information for each session
-  const sessions = sessionsData || []
+  type SessionRow = Database['public']['Tables']['roi_sessions']['Row']
+  const sessions = (sessionsData as SessionRow[]) || []
   const creatorIds = [...new Set(sessions.map((s) => s.created_by))]
   const { data: creators } = await supabase
     .from('users')
@@ -40,7 +42,9 @@ export default async function DashboardPage() {
     .in('id', creatorIds)
 
   // Create a map of creator ID to email
-  const creatorMap = new Map(creators?.map((c) => [c.id, c.email]) || [])
+  type UserRow = Database['public']['Tables']['users']['Row']
+  const typedCreators = (creators as UserRow[]) || []
+  const creatorMap = new Map(typedCreators.map((c) => [c.id, c.email]))
 
   // Add creator email to each session
   const sessionsWithCreators = sessions.map((session) => ({

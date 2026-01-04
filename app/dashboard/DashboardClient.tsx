@@ -77,6 +77,12 @@ export default function DashboardClient({ user, initialSessions }: DashboardClie
       return
     }
 
+    if (!user) {
+      alert('ログインが必要です')
+      router.push('/login')
+      return
+    }
+
     setLoading(true)
     const supabase = createClient()
 
@@ -89,7 +95,7 @@ export default function DashboardClient({ user, initialSessions }: DashboardClie
 
     const { data, error } = await supabase
       .from('roi_sessions')
-      .insert(insertData)
+      .insert(insertData as any)
       .select()
       .single()
 
@@ -99,11 +105,19 @@ export default function DashboardClient({ user, initialSessions }: DashboardClie
       return
     }
 
+    if (!data) {
+      alert('セッションの作成に失敗しました')
+      setLoading(false)
+      return
+    }
+
     setShowCreateModal(false)
     setNewTitle('')
     setNewCompanyName('')
     setLoading(false)
-    router.push(`/roi/${data.id}`)
+    type SessionRow = Database['public']['Tables']['roi_sessions']['Row']
+    const typedData = data as SessionRow
+    router.push(`/roi/${typedData.id}`)
   }
 
   // Filter sessions by favorite if needed
@@ -147,6 +161,12 @@ export default function DashboardClient({ user, initialSessions }: DashboardClie
   }
 
   const handleDuplicateSession = async (session: Session) => {
+    if (!user) {
+      alert('ログインが必要です')
+      router.push('/login')
+      return
+    }
+
     setLoading(true)
     const supabase = createClient()
 
@@ -160,7 +180,7 @@ export default function DashboardClient({ user, initialSessions }: DashboardClie
 
     const { data, error } = await supabase
       .from('roi_sessions')
-      .insert(insertData)
+      .insert(insertData as any)
       .select()
       .single()
 
@@ -175,7 +195,7 @@ export default function DashboardClient({ user, initialSessions }: DashboardClie
         }
         const { data: retryData, error: retryError } = await supabase
           .from('roi_sessions')
-          .insert(retryInsertData)
+          .insert(retryInsertData as any)
           .select()
           .single()
 
@@ -196,14 +216,18 @@ export default function DashboardClient({ user, initialSessions }: DashboardClie
           .limit(50)
 
         if (updatedSessionsData) {
-          const creatorIds = [...new Set(updatedSessionsData.map((s) => s.created_by))]
+          type SessionRow = Database['public']['Tables']['roi_sessions']['Row']
+          const typedSessionsData = updatedSessionsData as SessionRow[]
+          const creatorIds = [...new Set(typedSessionsData.map((s) => s.created_by))]
           const { data: creators } = await supabase
             .from('users')
             .select('id, email')
             .in('id', creatorIds)
 
-          const creatorMap = new Map(creators?.map((c) => [c.id, c.email]) || [])
-          const updatedSessions = updatedSessionsData.map((session) => ({
+          type UserRow = Database['public']['Tables']['users']['Row']
+          const typedCreators = (creators as UserRow[]) || []
+          const creatorMap = new Map(typedCreators.map((c) => [c.id, c.email]))
+          const updatedSessions = typedSessionsData.map((session) => ({
             ...session,
             creator_email: creatorMap.get(session.created_by) || '不明',
           }))
@@ -211,9 +235,13 @@ export default function DashboardClient({ user, initialSessions }: DashboardClie
           setSessions(updatedSessions)
         }
 
-        setLoading(false)
-        router.push(`/roi/${retryData.id}`)
-        return
+        if (retryData) {
+          setLoading(false)
+          type SessionRow = Database['public']['Tables']['roi_sessions']['Row']
+          const typedRetryData = retryData as SessionRow
+          router.push(`/roi/${typedRetryData.id}`)
+          return
+        }
       }
 
       alert(
@@ -236,7 +264,9 @@ export default function DashboardClient({ user, initialSessions }: DashboardClie
     }
 
     setLoading(false)
-    router.push(`/roi/${data.id}`)
+    type SessionRow = Database['public']['Tables']['roi_sessions']['Row']
+    const typedData = data as SessionRow
+    router.push(`/roi/${typedData.id}`)
   }
 
   const handleToggleFavorite = async (sessionId: string, currentFavorite: boolean) => {
@@ -244,6 +274,7 @@ export default function DashboardClient({ user, initialSessions }: DashboardClie
     const updateData: SessionUpdate = { is_favorite: !currentFavorite }
     const { error } = await supabase
       .from('roi_sessions')
+      // @ts-ignore - Supabase type inference issue
       .update(updateData)
       .eq('id', sessionId)
 

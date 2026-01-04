@@ -2,6 +2,8 @@
 
 export type Language = 'jp' | 'en'
 
+export type Translations = typeof translations.jp
+
 export const translations = {
   en: {
     mainTitle: 'ROI Business Case Tool',

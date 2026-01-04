@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/client'
+import type { Database } from '@/lib/supabase/database.types'
 
 export type AuditAction = 'view' | 'edit' | 'delete' | 'share' | 'create' | 'export'
 
@@ -13,13 +14,15 @@ export async function logAuditAction(
   // Get client IP and user agent (if available)
   const userAgent = typeof window !== 'undefined' ? window.navigator.userAgent : null
 
-  const { error } = await supabase.from('audit_logs').insert({
+  type AuditLogInsert = Database['public']['Tables']['audit_logs']['Insert']
+  const insertData: AuditLogInsert = {
     user_id: userId,
     session_id: sessionId,
     action,
     user_agent: userAgent,
     metadata: metadata || null,
-  })
+  }
+  const { error } = await supabase.from('audit_logs').insert(insertData as any)
 
   if (error) {
     console.error('Failed to log audit action:', error)
