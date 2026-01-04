@@ -10,6 +10,8 @@ type Session = Database['public']['Tables']['roi_sessions']['Row'] & {
   creator_email?: string
 }
 type User = Database['public']['Tables']['users']['Row']
+type SessionInsert = Database['public']['Tables']['roi_sessions']['Insert']
+type SessionUpdate = Database['public']['Tables']['roi_sessions']['Update']
 
 interface DashboardClientProps {
   user: User | null
@@ -78,14 +80,16 @@ export default function DashboardClient({ user, initialSessions }: DashboardClie
     setLoading(true)
     const supabase = createClient()
 
+    const insertData: SessionInsert = {
+      title: newTitle.trim(),
+      company_name: newCompanyName.trim() || null,
+      created_by: user.id,
+      data: {},
+    }
+
     const { data, error } = await supabase
       .from('roi_sessions')
-      .insert({
-        title: newTitle.trim(),
-        company_name: newCompanyName.trim() || null,
-        created_by: user.id,
-        data: {},
-      })
+      .insert(insertData)
       .select()
       .single()
 
@@ -147,7 +151,7 @@ export default function DashboardClient({ user, initialSessions }: DashboardClie
     const supabase = createClient()
 
     // Build insert data without is_favorite if column doesn't exist
-    const insertData: any = {
+    const insertData: SessionInsert = {
       title: `${session.title} (コピー)`,
       company_name: session.company_name,
       created_by: user.id,
@@ -163,14 +167,15 @@ export default function DashboardClient({ user, initialSessions }: DashboardClie
     if (error) {
       // If error is about missing is_favorite column, try without it
       if (error.message.includes('is_favorite')) {
+        const retryInsertData: SessionInsert = {
+          title: `${session.title} (コピー)`,
+          company_name: session.company_name,
+          created_by: user.id,
+          data: session.data,
+        }
         const { data: retryData, error: retryError } = await supabase
           .from('roi_sessions')
-          .insert({
-            title: `${session.title} (コピー)`,
-            company_name: session.company_name,
-            created_by: user.id,
-            data: session.data,
-          })
+          .insert(retryInsertData)
           .select()
           .single()
 
@@ -236,9 +241,10 @@ export default function DashboardClient({ user, initialSessions }: DashboardClie
 
   const handleToggleFavorite = async (sessionId: string, currentFavorite: boolean) => {
     const supabase = createClient()
+    const updateData: SessionUpdate = { is_favorite: !currentFavorite }
     const { error } = await supabase
       .from('roi_sessions')
-      .update({ is_favorite: !currentFavorite })
+      .update(updateData)
       .eq('id', sessionId)
 
     if (error) {
