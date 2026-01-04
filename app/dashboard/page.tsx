@@ -3,6 +3,8 @@ import { createServerClient } from '@/lib/supabase/server'
 import DashboardClient from './DashboardClient'
 import type { Database } from '@/lib/supabase/database.types'
 
+export const dynamic = 'force-dynamic'
+
 export default async function DashboardPage() {
   const supabase = createServerClient()
   const {

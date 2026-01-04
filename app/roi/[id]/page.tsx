@@ -3,6 +3,8 @@ import { createServerClient } from '@/lib/supabase/server'
 import ROICalculatorClient from './ROICalculatorClient'
 import type { Database } from '@/lib/supabase/database.types'
 
+export const dynamic = 'force-dynamic'
+
 export default async function ROIPage({ params }: { params: { id: string } }) {
   const supabase = createServerClient()
   const {
