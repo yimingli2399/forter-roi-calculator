@@ -46,7 +46,9 @@ export default function DashboardClient({ user, initialSessions }: DashboardClie
           .select('id, email')
           .in('id', creatorIds)
 
-        const creatorMap = new Map(creators?.map((c) => [c.id, c.email]) || [])
+        type UserRow = Database['public']['Tables']['users']['Row']
+        const typedCreators = (creators as UserRow[]) || []
+        const creatorMap = new Map(typedCreators.map((c) => [c.id, c.email]))
         const sessionsWithCreators = typedSessionsData.map((session) => ({
           ...session,
           creator_email: creatorMap.get(session.created_by) || '不明',
