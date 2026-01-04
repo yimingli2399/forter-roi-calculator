@@ -38,14 +38,16 @@ export default function DashboardClient({ user, initialSessions }: DashboardClie
       
       if (sessionsData) {
         // Get creator information
-        const creatorIds = [...new Set(sessionsData.map((s) => s.created_by))]
+        type SessionRow = Database['public']['Tables']['roi_sessions']['Row']
+        const typedSessionsData = sessionsData as SessionRow[]
+        const creatorIds = [...new Set(typedSessionsData.map((s) => s.created_by))]
         const { data: creators } = await supabase
           .from('users')
           .select('id, email')
           .in('id', creatorIds)
 
         const creatorMap = new Map(creators?.map((c) => [c.id, c.email]) || [])
-        const sessionsWithCreators = sessionsData.map((session) => ({
+        const sessionsWithCreators = typedSessionsData.map((session) => ({
           ...session,
           creator_email: creatorMap.get(session.created_by) || '不明',
         }))
