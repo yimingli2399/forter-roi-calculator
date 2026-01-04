@@ -1,0 +1,97 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+body {
+  font-family: 'Inter', sans-serif;
+}
+
+/* Custom styles from original HTML */
+.section-container {
+  @apply bg-white p-6 rounded-xl shadow-md border border-gray-200 mt-8;
+}
+
+.section-title {
+  @apply text-2xl font-bold text-gray-900 border-b border-gray-300 pb-3 mb-6;
+}
+
+.subsection-title {
+  @apply text-xl font-semibold text-gray-700 mt-6 mb-4;
+}
+
+.input-label {
+  @apply block text-base font-medium text-gray-600;
+}
+
+.input-field {
+  @apply mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm;
+}
+
+.funnel-stage {
+  @apply relative px-5 py-3 mx-auto bg-indigo-100 border border-indigo-300 text-indigo-800 text-center;
+  clip-path: polygon(5% 0, 95% 0, 100% 100%, 0% 100%);
+}
+
+.funnel-stage.success {
+  @apply bg-green-100 border-green-300 text-green-800;
+}
+
+.funnel-decline {
+  @apply relative text-center py-1 text-sm text-red-800;
+}
+
+.funnel-decline::before {
+  content: '▼';
+  @apply block text-base text-red-300;
+}
+
+.conclusion-box {
+  @apply mt-6 p-4 bg-gray-100 border-l-4 border-blue-500;
+}
+
+.roi-card {
+  @apply bg-gray-50 border border-gray-200 p-6 rounded-lg text-center;
+}
+
+.roi-label {
+  @apply text-xl font-medium text-gray-600;
+}
+
+.roi-value {
+  @apply text-4xl font-extrabold mt-2;
+}
+
+.funnel-number {
+  @apply text-2xl font-bold;
+}
+
+.funnel-revenue-value {
+  @apply text-3xl font-extrabold;
+}
+
+.diff-highlight {
+  @apply bg-yellow-50;
+}
+
+.scenario-header-s1 {
+  @apply bg-gray-100;
+}
+
+.scenario-header-s2 {
+  @apply bg-blue-50;
+}
+
+.comment-icon.active {
+  @apply text-blue-600;
+}
+
+.comment-textarea {
+  @apply bg-yellow-50 border-yellow-300;
+}
+
+.input-group.hidden {
+  display: none;
+}
+

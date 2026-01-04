@@ -1,0 +1,1194 @@
+<!DOCTYPE html>
+<html lang="jp"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forter導入インパクト試算</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .section-container { background-color: white; padding: 1.5rem; border-radius: 1rem; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); border: 1px solid #e5e7eb; margin-top: 2rem; }
+        .section-title { font-size: 1.5rem; font-weight: 700; color: #111827; border-bottom: 1px solid #d1d5db; padding-bottom: 0.75rem; margin-bottom: 1.5rem; }
+        .subsection-title { font-size: 1.125rem; font-weight: 600; color: #374151; margin-top: 1.5rem; margin-bottom: 1rem; }
+        .input-label { display: block; font-size: 0.875rem; font-weight: 500; color: #4b5563; }
+        .input-field { margin-top: 0.25rem; display: block; width: 100%; border-radius: 0.375rem; border: 1px solid #d1d5db; padding: 0.5rem; box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05); }
+        .slider-track { width: 100%; height: 8px; cursor: pointer; background: #e5e7eb; border-radius: 9999px; }
+        .funnel-stage { position: relative; padding: 0.75rem 1.25rem; margin: 0 auto; background-color: #e0e7ff; border: 1px solid #c7d2fe; color: #3730a3; text-align: center; clip-path: polygon(5% 0, 95% 0, 100% 100%, 0% 100%); }
+        .funnel-stage.success { background-color: #dcfce7; border-color: #86efac; color: #166534; }
+        .funnel-decline { position: relative; text-align: center; padding: 0.25rem; font-size: 0.875rem; color: #991b1b; }
+        .funnel-decline::before { content: '▼'; display: block; font-size: 1rem; color: #fca5a5; }
+        .conclusion-box { margin-top: 1.5rem; padding: 1rem; background-color: #f3f4f6; border-left: 4px solid #3b82f6; }
+        .roi-card { background-color: #f9fafb; border: 1px solid #e5e7eb; padding: 1.5rem; border-radius: 0.75rem; text-align: center; }
+        .roi-label { font-size: 1rem; font-weight: 500; color: #6b7280; }
+        .roi-value { font-size: 2.25rem; font-weight: 800; margin-top: 0.5rem; }
+        [title]:hover { cursor: help; }
+        #app-container { position: relative; }
+        html[lang="jp"] .subtitle { display: none; }
+        .comment-icon.active { color: #2563eb; /* blue-600 */ }
+        .comment-textarea { background-color: #fffff0; border-color: #fde047; }
+        /* New class for wrapping input rows */
+        .input-group { margin-bottom: 1rem; }
+        .input-group.hidden { display: none; }
+        /* New styles for larger funnel numbers */
+        .funnel-number { font-size: 1.5rem; font-weight: 700; } /* text-xl font-bold */
+        .funnel-revenue-value { font-size: 2rem; font-weight: 800; } /* text-3xl font-extrabold */
+
+        /* Added styles to highlight different scenario inputs */
+        .diff-highlight { background-color: #fffbe6; } /* bg-yellow-50 */
+        .scenario-header-s1 { background-color: #f3f4f6; } /* bg-gray-100 */
+        .scenario-header-s2 { background-color: #eff6ff; } /* bg-blue-50 */
+
+        /* Larger font sizes for better visibility on slides */
+        .section-title { font-size: 2rem; }
+        .subsection-title { font-size: 1.5rem; }
+        .input-label { font-size: 1rem; }
+        .roi-label { font-size: 1.25rem; }
+    </style>
+<style>*, ::before, ::after{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/* ! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com */*,::after,::before{box-sizing:border-box;border-width:0;border-style:solid;border-color:#e5e7eb}::after,::before{--tw-content:''}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;tab-size:4;font-family:ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0;padding:0}legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}.container{width:100%}@media (min-width: 640px){.container{max-width:640px}}@media (min-width: 768px){.container{max-width:768px}}@media (min-width: 1024px){.container{max-width:1024px}}@media (min-width: 1280px){.container{max-width:1280px}}@media (min-width: 1536px){.container{max-width:1536px}}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0, 0, 0, 0);white-space:nowrap;border-width:0}.absolute{position:absolute}.relative{position:relative}.top-0{top:0px}.mx-2{margin-left:0.5rem;margin-right:0.5rem}.mx-auto{margin-left:auto;margin-right:auto}.my-4{margin-top:1rem;margin-bottom:1rem}.mb-4{margin-bottom:1rem}.mb-8{margin-bottom:2rem}.ml-1{margin-left:0.25rem}.ml-4{margin-left:1rem}.mt-0{margin-top:0px}.mt-1{margin-top:0.25rem}.mt-2{margin-top:0.5rem}.mt-6{margin-top:1.5rem}.mt-8{margin-top:2rem}.mt-4{margin-top:1rem}.flex{display:flex}.inline-flex{display:inline-flex}.grid{display:grid}.hidden{display:none}.h-4{height:1rem}.h-5{height:1.25rem}.h-6{height:1.5rem}.w-11{width:2.75rem}.w-16{width:4rem}.w-4{width:1rem}.w-5{width:1.25rem}.w-full{width:100%}.max-w-7xl{max-width:80rem}.cursor-pointer{cursor:pointer}.grid-cols-1{grid-template-columns:repeat(1, minmax(0, 1fr))}.items-center{align-items:center}.justify-center{justify-content:center}.justify-between{justify-content:space-between}.gap-6{gap:1.5rem}.gap-8{gap:2rem}.gap-x-8{column-gap:2rem}.gap-y-6{row-gap:1.5rem}.space-x-2 > :not([hidden]) ~ :not([hidden]){--tw-space-x-reverse:0;margin-right:calc(0.5rem * var(--tw-space-x-reverse));margin-left:calc(0.5rem * calc(1 - var(--tw-space-x-reverse)))}.space-x-4 > :not([hidden]) ~ :not([hidden]){--tw-space-x-reverse:0;margin-right:calc(1rem * var(--tw-space-x-reverse));margin-left:calc(1rem * calc(1 - var(--tw-space-x-reverse)))}.space-y-4 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1rem * var(--tw-space-y-reverse))}.space-y-1 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.25rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.25rem * var(--tw-space-y-reverse))}.overflow-x-auto{overflow-x:auto}.rounded-full{border-radius:9999px}.rounded-lg{border-radius:0.5rem}.rounded-md{border-radius:0.375rem}.border{border-width:1px}.border-b{border-bottom-width:1px}.border-b-2{border-bottom-width:2px}.border-dashed{border-style:dashed}.border-gray-300{--tw-border-opacity:1;border-color:rgb(209 213 219 / var(--tw-border-opacity, 1))}.bg-gray-100{--tw-bg-opacity:1;background-color:rgb(243 244 246 / var(--tw-bg-opacity, 1))}.bg-blue-600{--tw-bg-opacity:1;background-color:rgb(37 99 235 / var(--tw-bg-opacity, 1))}.bg-gray-200{--tw-bg-opacity:1;background-color:rgb(229 231 235 / var(--tw-bg-opacity, 1))}.bg-gray-50{--tw-bg-opacity:1;background-color:rgb(249 250 251 / var(--tw-bg-opacity, 1))}.bg-gray-500{--tw-bg-opacity:1;background-color:rgb(107 114 128 / var(--tw-bg-opacity, 1))}.bg-green-600{--tw-bg-opacity:1;background-color:rgb(22 163 74 / var(--tw-bg-opacity, 1))}.bg-purple-600{--tw-bg-opacity:1;background-color:rgb(147 51 234 / var(--tw-bg-opacity, 1))}.bg-blue-100{--tw-bg-opacity:1;background-color:rgb(219 234 254 / var(--tw-bg-opacity, 1))}.bg-indigo-100{--tw-bg-opacity:1;background-color:rgb(224 231 255 / var(--tw-bg-opacity, 1))}.p-2{padding:0.5rem}.p-4{padding:1rem}.p-3{padding:0.75rem}.px-4{padding-left:1rem;padding-right:1rem}.px-6{padding-left:1.5rem;padding-right:1.5rem}.py-2{padding-top:0.5rem;padding-bottom:0.5rem}.py-3{padding-top:0.75rem;padding-bottom:0.75rem}.pt-12{padding-top:3rem}.pl-6{padding-left:1.5rem}.text-left{text-align:left}.text-center{text-align:center}.text-right{text-align:right}.text-4xl{font-size:2.25rem;line-height:2.5rem}.text-lg{font-size:1.125rem;line-height:1.75rem}.text-sm{font-size:0.875rem;line-height:1.25rem}.text-xs{font-size:0.75rem;line-height:1rem}.text-xl{font-size:1.25rem;line-height:1.75rem}.font-bold{font-weight:700}.font-medium{font-weight:500}.font-semibold{font-weight:600}.text-gray-800{--tw-text-opacity:1;color:rgb(31 41 55 / var(--tw-text-opacity, 1))}.text-gray-400{--tw-text-opacity:1;color:rgb(156 163 175 / var(--tw-text-opacity, 1))}.text-gray-500{--tw-text-opacity:1;color:rgb(107 114 128 / var(--tw-text-opacity, 1))}.text-gray-600{--tw-text-opacity:1;color:rgb(75 85 99 / var(--tw-text-opacity, 1))}.text-gray-700{--tw-text-opacity:1;color:rgb(55 65 81 / var(--tw-text-opacity, 1))}.text-gray-900{--tw-text-opacity:1;color:rgb(17 24 39 / var(--tw-text-opacity, 1))}.text-green-600{--tw-text-opacity:1;color:rgb(22 163 74 / var(--tw-text-opacity, 1))}.text-purple-600{--tw-text-opacity:1;color:rgb(147 51 234 / var(--tw-text-opacity, 1))}.text-red-600{--tw-text-opacity:1;color:rgb(220 38 38 / var(--tw-text-opacity, 1))}.text-white{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity, 1))}.text-blue-800{--tw-text-opacity:1;color:rgb(30 64 175 / var(--tw-text-opacity, 1))}.text-green-700{--tw-text-opacity:1;color:rgb(21 128 61 / var(--tw-text-opacity, 1))}.text-indigo-800{--tw-text-opacity:1;color:rgb(55 48 163 / var(--tw-text-opacity, 1))}.shadow-md{--tw-shadow:0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 4px 6px -1px var(--tw-shadow-color), 0 2px 4px -2px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.transition-colors{transition-property:color, background-color, border-color, fill, stroke, -webkit-text-decoration-color;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke, -webkit-text-decoration-color;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.after\:absolute::after{content:var(--tw-content);position:absolute}.after\:left-\[2px\]::after{content:var(--tw-content);left:2px}.after\:top-\[2px\]::after{content:var(--tw-content);top:2px}.after\:h-5::after{content:var(--tw-content);height:1.25rem}.after\:w-5::after{content:var(--tw-content);width:1.25rem}.after\:rounded-full::after{content:var(--tw-content);border-radius:9999px}.after\:border::after{content:var(--tw-content);border-width:1px}.after\:border-gray-300::after{content:var(--tw-content);--tw-border-opacity:1;border-color:rgb(209 213 219 / var(--tw-border-opacity, 1))}.after\:bg-white::after{content:var(--tw-content);--tw-bg-opacity:1;background-color:rgb(255 255 255 / var(--tw-bg-opacity, 1))}.after\:transition-all::after{content:var(--tw-content);transition-property:all;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.after\:content-\[\'\'\]::after{--tw-content:'';content:var(--tw-content)}.hover\:bg-blue-700:hover{--tw-bg-opacity:1;background-color:rgb(29 78 216 / var(--tw-bg-opacity, 1))}.hover\:bg-gray-600:hover{--tw-bg-opacity:1;background-color:rgb(75 85 99 / var(--tw-bg-opacity, 1))}.hover\:bg-green-700:hover{--tw-bg-opacity:1;background-color:rgb(21 128 61 / var(--tw-bg-opacity, 1))}.hover\:bg-purple-700:hover{--tw-bg-opacity:1;background-color:rgb(126 34 206 / var(--tw-bg-opacity, 1))}.hover\:text-blue-600:hover{--tw-text-opacity:1;color:rgb(37 99 235 / var(--tw-text-opacity, 1))}.peer:checked ~ .peer-checked\:bg-blue-600{--tw-bg-opacity:1;background-color:rgb(37 99 235 / var(--tw-bg-opacity, 1))}.peer:checked ~ .peer-checked\:after\:translate-x-full::after{content:var(--tw-content);--tw-translate-x:100%;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.peer:checked ~ .peer-checked\:after\:border-white::after{content:var(--tw-content);--tw-border-opacity:1;border-color:rgb(255 255 255 / var(--tw-border-opacity, 1))}.peer:focus ~ .peer-focus\:outline-none{outline:2px solid transparent;outline-offset:2px}.peer:focus ~ .peer-focus\:ring-4{--tw-ring-offset-shadow:var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);--tw-ring-shadow:var(--tw-ring-inset) 0 0 0 calc(4px + var(--tw-ring-offset-width)) var(--tw-ring-color);box-shadow:var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000)}.peer:focus ~ .peer-focus\:ring-blue-300{--tw-ring-opacity:1;--tw-ring-color:rgb(147 197 253 / var(--tw-ring-opacity, 1))}@media (min-width: 640px){.sm\:grid-cols-3{grid-template-columns:repeat(3, minmax(0, 1fr))}.sm\:space-x-4 > :not([hidden]) ~ :not([hidden]){--tw-space-x-reverse:0;margin-right:calc(1rem * var(--tw-space-x-reverse));margin-left:calc(1rem * calc(1 - var(--tw-space-x-reverse)))}.sm\:p-6{padding:1.5rem}}@media (min-width: 768px){.md\:col-span-2{grid-column:span 2 / span 2}.md\:grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}.md\:p-8{padding:2rem}}</style></head>
+<body class="bg-gray-100 text-gray-800">
+    <div id="app-container" class="container mx-auto p-4 sm:p-6 md:p-8 max-w-7xl">
+        <header class="text-center mb-4 relative">
+            <div id="header-controls" class="absolute top-0 w-full flex justify-between items-center">
+                <div class="flex items-center">
+                    <span class="text-sm font-medium text-gray-700">EN</span>
+                    <label for="language-toggle" class="relative inline-flex items-center cursor-pointer mx-2">
+                        <input type="checkbox" value="" id="language-toggle" class="sr-only peer" checked="checked">
+                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                    </label>
+                    <span class="text-sm font-medium text-gray-700">JP</span>
+                </div>
+                <div class="flex items-center space-x-2 sm:space-x-4">
+                    <button id="export-html" class="bg-green-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-700 transition-colors"><span data-lang-key="exportHtml">HTMLをエクスポート</span></button>
+                    <button id="export-pdf" class="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors"><span data-lang-key="exportPdf">PDFにエクスポート</span></button>
+                </div>
+            </div>
+            <h1 id="mainTitleEditable" class="text-4xl font-bold text-gray-900 pt-12" contenteditable="true" data-lang-key="mainTitle" data-edited="false">Forter導入インパクト試算</h1>
+            <p class="mt-2 text-lg text-gray-600 subtitle" data-lang-key="mainSubtitle"></p>
+        </header>
+
+        <div class="section-container">
+            <h2 class="section-title" data-lang-key="assumptionsTitle">1. シナリオの前提条件</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                <div class="md:col-span-2">
+                    <h3 class="subsection-title" data-lang-key="commonFactsTitle">両シナリオに共通の事実</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                        <div class="input-group">
+                            <div class="flex justify-between items-center"><label for="annualAttempts" class="input-label" data-lang-key="annualAttempts">年間取引試行回数</label><svg class="comment-icon w-5 h-5 text-gray-400 hover:text-blue-600 cursor-pointer" data-comment-for="annualAttempts" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.76c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.076-4.076a1.526 1.526 0 011.037-.443 48.282 48.282 0 005.68-.494c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"></path></svg></div>
+                            <input type="text" id="annualAttempts" value="3182624" class="input-field number-input" inputmode="decimal" data-original-value="3182624" data-previous-value="3182624">
+                            <textarea id="comment-annualAttempts" class="comment-textarea hidden w-full mt-2 p-2 border rounded-md text-sm" placeholder="Add a comment..."></textarea>
+                        </div>
+                        <div class="input-group">
+                            <div class="flex justify-between items-center"><label for="atvSuccess" class="input-label" data-lang-key="atvSuccess">平均取引額-成功決済 (円)</label><svg class="comment-icon w-5 h-5 text-gray-400 hover:text-blue-600 cursor-pointer" data-comment-for="atvSuccess" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.76c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.076-4.076a1.526 1.526 0 011.037-.443 48.282 48.282 0 005.68-.494c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"></path></svg></div>
+                            <input type="text" id="atvSuccess" value="17302.00528" class="input-field number-input" inputmode="decimal" data-original-value="17302.00528" data-previous-value="17302.00528">
+                            <textarea id="comment-atvSuccess" class="comment-textarea hidden w-full mt-2 p-2 border rounded-md text-sm" placeholder="Add a comment..."></textarea>
+                        </div>
+                        <div class="input-group">
+                            <div class="flex justify-between items-center"><label for="atvDecline" class="input-label" data-lang-key="atvDecline">平均取引額-失敗決済 (円)</label><svg class="comment-icon w-5 h-5 text-gray-400 hover:text-blue-600 cursor-pointer" data-comment-for="atvDecline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.76c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.076-4.076a1.526 1.526 0 011.037-.443 48.282 48.282 0 005.68-.494c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"></path></svg></div>
+                            <input type="text" id="atvDecline" value="55387.94297" class="input-field number-input" inputmode="decimal" data-original-value="55387.94297" data-previous-value="55387.94297">
+                            <textarea id="comment-atvDecline" class="comment-textarea hidden w-full mt-2 p-2 border rounded-md text-sm" placeholder="Add a comment..."></textarea>
+                        </div>
+                        <div class="input-group">
+                            <div class="flex justify-between items-center"><label for="threeDSCost" class="input-label" data-lang-key="threeDSCost">取引毎の3DSコスト (円)</label><svg class="comment-icon w-5 h-5 text-gray-400 hover:text-blue-600 cursor-pointer" data-comment-for="threeDSCost" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.76c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.076-4.076a1.526 1.526 0 011.037-.443 48.282 48.282 0 005.68-.494c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"></path></svg></div>
+                            <input type="text" id="threeDSCost" value="0" class="input-field number-input" inputmode="decimal" data-original-value="0" data-previous-value="0">
+                            <textarea id="comment-threeDSCost" class="comment-textarea hidden w-full mt-2 p-2 border rounded-md text-sm" placeholder="Add a comment..."></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-4 border rounded-lg scenario-header-s1">
+                    <div class="flex items-center justify-between">
+                        <h3 id="scenario1Title" class="subsection-title mt-0" contenteditable="true" data-edited="false">シナリオ 1 (ベース)</h3>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="input-group">
+                            <div class="flex justify-between items-center"><label class="input-label" data-lang-key="preAuthDecline">決済前の拒否率 (%)</label><svg class="comment-icon w-5 h-5 text-gray-400 hover:text-blue-600 cursor-pointer" data-comment-for="s1_preAuthDecline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.76c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.076-4.076a1.526 1.526 0 011.037-.443 48.282 48.282 0 005.68-.494c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"></path></svg></div>
+                            <input type="text" id="s1_preAuthDecline" value="0" step="0.01" class="input-field number-input percentage-input diff-highlight" inputmode="decimal" data-original-value="0" data-previous-value="0">
+                            <textarea id="comment-s1_preAuthDecline" class="comment-textarea hidden w-full mt-2 p-2 border rounded-md text-sm" placeholder="Add a comment..."></textarea>
+                            <div class="flex items-center mt-1">
+                                <input type="checkbox" id="hide_s1_preAuthDecline" class="h-4 w-4 text-gray-600 hide-if-zero-checkbox" data-scenario-param="preAuthDecline">
+                                <label for="hide_s1_preAuthDecline" class="ml-1 text-xs text-gray-500" data-lang-key="hideIfZero">非表示</label>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <div class="flex justify-between items-center"><label class="input-label" data-lang-key="postAuthAuto">決済後の拒否率 (自動) (%)</label><svg class="comment-icon w-5 h-5 text-gray-400 hover:text-blue-600 cursor-pointer" data-comment-for="s1_postAuthAuto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.76c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.076-4.076a1.526 1.526 0 011.037-.443 48.282 48.282 0 005.68-.494c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"></path></svg></div>
+                            <input type="text" id="s1_postAuthAuto" value="0" class="input-field number-input" inputmode="decimal" data-original-value="0" data-previous-value="0">
+                            <textarea id="comment-s1_postAuthAuto" class="comment-textarea hidden w-full mt-2 p-2 border rounded-md text-sm" placeholder="Add a comment..."></textarea>
+                            <div class="flex items-center mt-1">
+                                <input type="checkbox" id="hide_s1_postAuthAuto" class="h-4 w-4 text-gray-600 hide-if-zero-checkbox" data-scenario-param="postAuthAuto">
+                                <label for="hide_s1_postAuthAuto" class="ml-1 text-xs text-gray-500" data-lang-key="hideIfZero">非表示</label>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <div class="flex justify-between items-center"><label class="input-label" data-lang-key="postAuthManual">決済後の拒否率 (目検) (%)</label><svg class="comment-icon w-5 h-5 text-gray-400 hover:text-blue-600 cursor-pointer" data-comment-for="s1_postAuthManual" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.76c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.076-4.076a1.526 1.526 0 011.037-.443 48.282 48.282 0 005.68-.494c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"></path></svg></div>
+                            <input type="text" id="s1_postAuthManual" value="0" class="input-field number-input" inputmode="decimal" data-original-value="0" data-previous-value="0">
+                            <textarea id="comment-s1_postAuthManual" class="comment-textarea hidden w-full mt-2 p-2 border rounded-md text-sm" placeholder="Add a comment..."></textarea>
+                            <div class="flex items-center mt-1">
+                                <input type="checkbox" id="hide_s1_postAuthManual" class="h-4 w-4 text-gray-600 hide-if-zero-checkbox" data-scenario-param="postAuthManual">
+                                <label for="hide_s1_postAuthManual" class="ml-1 text-xs text-gray-500" data-lang-key="hideIfZero">非表示</label>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <div class="flex justify-between items-center"><label class="input-label" data-lang-key="threeDSUsage">3DS利用率 (%)</label><svg class="comment-icon w-5 h-5 text-gray-400 hover:text-blue-600 cursor-pointer" data-comment-for="s1_3dsUsage" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.76c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.076-4.076a1.526 1.526 0 011.037-.443 48.282 48.282 0 005.68-.494c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"></path></svg></div>
+                            <input type="text" id="s1_3dsUsage" value="100" step="1" class="input-field number-input diff-highlight" inputmode="decimal" data-original-value="100" data-previous-value="100">
+                            <textarea id="comment-s1_3dsUsage" class="comment-textarea hidden w-full mt-2 p-2 border rounded-md text-sm" placeholder="Add a comment..."></textarea>
+                            <div class="flex items-center mt-1">
+                                <input type="checkbox" id="hide_s1_3dsUsage" class="h-4 w-4 text-gray-600 hide-if-zero-checkbox" data-scenario-param="3dsUsage">
+                                <label for="hide_s1_3dsUsage" class="ml-1 text-xs text-gray-500" data-lang-key="hideIfZero">非表示</label>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <div class="flex justify-between items-center"><label class="input-label" data-lang-key="threeDSError">3DSエラー率 (%)</label><svg class="comment-icon w-5 h-5 text-gray-400 hover:text-blue-600 cursor-pointer" data-comment-for="s1_3dsError" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.76c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.076-4.076a1.526 1.526 0 011.037-.443 48.282 48.282 0 005.68-.494c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"></path></svg></div>
+                            <input type="text" id="s1_3dsError" value="6" step="0.01" class="input-field number-input diff-highlight" inputmode="decimal" data-original-value="6" data-previous-value="6">
+                            <textarea id="comment-s1_3dsError" class="comment-textarea hidden w-full mt-2 p-2 border rounded-md text-sm" placeholder="Add a comment..."></textarea>
+                            <div class="flex items-center mt-1">
+                                <input type="checkbox" id="hide_s1_3dsError" class="h-4 w-4 text-gray-600 hide-if-zero-checkbox" data-scenario-param="3dsError">
+                                <label for="hide_s1_3dsError" class="ml-1 text-xs text-gray-500" data-lang-key="hideIfZero">非表示</label>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <div class="flex justify-between items-center"><label class="input-label" data-lang-key="authRate">与信成功率 (%)</label><svg class="comment-icon w-5 h-5 text-gray-400 hover:text-blue-600 cursor-pointer" data-comment-for="s1_authRate" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.76c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.076-4.076a1.526 1.526 0 011.037-.443 48.282 48.282 0 005.68-.494c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"></path></svg></div>
+                            <input type="text" id="s1_authRate" value="97.41" class="input-field number-input diff-highlight" inputmode="decimal" data-original-value="97.41" data-previous-value="97.41">
+                            <textarea id="comment-s1_authRate" class="comment-textarea hidden w-full mt-2 p-2 border rounded-md text-sm" placeholder="Add a comment..."></textarea>
+                            <div class="flex items-center mt-1">
+                                <input type="checkbox" id="hide_s1_authRate" class="h-4 w-4 text-gray-600 hide-if-zero-checkbox" data-scenario-param="authRate">
+                                <label for="hide_s1_authRate" class="ml-1 text-xs text-gray-500" data-lang-key="hideIfZero">非表示</label>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <div class="flex justify-between items-center"><label class="input-label" data-lang-key="chargebackRate">チャージバック率 (%)</label><svg class="comment-icon w-5 h-5 text-gray-400 hover:text-blue-600 cursor-pointer" data-comment-for="s1_chargebackRate" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.76c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.076-4.076a1.526 1.526 0 011.037-.443 48.282 48.282 0 005.68-.494c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"></path></svg></div>
+                            <input type="text" id="s1_chargebackRate" value="0" step="0.0001" class="input-field number-input" inputmode="decimal" data-original-value="0" data-previous-value="0">
+                            <textarea id="comment-s1_chargebackRate" class="comment-textarea hidden w-full mt-2 p-2 border rounded-md text-sm" placeholder="Add a comment..."></textarea>
+                            <div class="flex items-center mt-1">
+                                <input type="checkbox" id="hide_s1_chargebackRate" class="h-4 w-4 text-gray-600 hide-if-zero-checkbox" data-scenario-param="chargebackRate">
+                                <label for="hide_s1_chargebackRate" class="ml-1 text-xs text-gray-500" data-lang-key="hideIfZero">非表示</label>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <div class="flex justify-between items-center"><label class="input-label" data-lang-key="fixedFee">固定費用 (円)</label><svg class="comment-icon w-5 h-5 text-gray-400 hover:text-blue-600 cursor-pointer" data-comment-for="s1_fixedFee" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.76c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.076-4.076a1.526 1.526 0 011.037-.443 48.282 48.282 0 005.68-.494c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"></path></svg></div>
+                            <input type="text" id="s1_fixedFee" value="0" class="input-field number-input diff-highlight" inputmode="decimal" data-original-value="0" data-previous-value="0">
+                            <textarea id="comment-s1_fixedFee" class="comment-textarea hidden w-full mt-2 p-2 border rounded-md text-sm" placeholder="Add a comment..."></textarea>
+                            <div class="flex items-center mt-1">
+                                <input type="checkbox" id="hide_s1_fixedFee" class="h-4 w-4 text-gray-600 hide-if-zero-checkbox" data-scenario-param="fixedFee">
+                                <label for="hide_s1_fixedFee" class="ml-1 text-xs text-gray-500" data-lang-key="hideIfZero">非表示</label>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <div class="flex justify-between items-center"><label class="input-label" data-lang-key="percentageFee">補填費用 (%)</label><svg class="comment-icon w-5 h-5 text-gray-400 hover:text-blue-600 cursor-pointer" data-comment-for="s1_percentageFee" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.76c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.076-4.076a1.526 1.526 0 011.037-.443 48.282 48.282 0 005.68-.494c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"></path></svg></div>
+                            <input type="text" id="s1_percentageFee" value="0" step="0.01" class="input-field number-input diff-highlight" inputmode="decimal" data-original-value="0" data-previous-value="0">
+                            <textarea id="comment-s1_percentageFee" class="comment-textarea hidden w-full mt-2 p-2 border rounded-md text-sm" placeholder="Add a comment..."></textarea>
+                            <div class="flex items-center mt-1">
+                                <input type="checkbox" id="hide_s1_percentageFee" class="h-4 w-4 text-gray-600 hide-if-zero-checkbox" data-scenario-param="percentageFee">
+                                <label for="hide_s1_percentageFee" class="ml-1 text-xs text-gray-500" data-lang-key="hideIfZero">非表示</label>
+                                <input type="checkbox" id="s1_applyToNon3DS" class="h-4 w-4 text-gray-600 ml-4" data-scenario-param="applyToNon3DS">
+                                <label for="s1_applyToNon3DS" class="ml-1 text-xs text-gray-500" data-lang-key="applyToNon3DS">3DS無しにのみ適用</label>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <div class="flex justify-between items-center"><label class="input-label" data-lang-key="perTransactionCost">取引毎のコスト (円)</label><svg class="comment-icon w-5 h-5 text-gray-400 hover:text-blue-600 cursor-pointer" data-comment-for="s1_perTransactionCost" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.76c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.076-4.076a1.526 1.526 0 011.037-.443 48.282 48.282 0 005.68-.494c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"></path></svg></div>
+                            <input type="text" id="s1_perTransactionCost" value="0" class="input-field number-input" inputmode="decimal" data-original-value="0" data-previous-value="0">
+                            <textarea id="comment-s1_perTransactionCost" class="comment-textarea hidden w-full mt-2 p-2 border rounded-md text-sm" placeholder="Add a comment..."></textarea>
+                            <div class="flex items-center mt-1">
+                                <input type="checkbox" id="hide_s1_perTransactionCost" class="h-4 w-4 text-gray-600 hide-if-zero-checkbox" data-scenario-param="perTransactionCost">
+                                <label for="hide_s1_perTransactionCost" class="ml-1 text-xs text-gray-500" data-lang-key="hideIfZero">非表示</label>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <div class="flex justify-between items-center"><label class="input-label" data-lang-key="manualReviewCost">年間目検費用 (円)</label><svg class="comment-icon w-5 h-5 text-gray-400 hover:text-blue-600 cursor-pointer" data-comment-for="s1_manualReviewCost" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.76c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.076-4.076a1.526 1.526 0 011.037-.443 48.282 48.282 0 005.68-.494c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"></path></svg></div>
+                            <input type="text" id="s1_manualReviewCost" value="0" class="input-field number-input" inputmode="decimal" data-original-value="0" data-previous-value="0">
+                            <textarea id="comment-s1_manualReviewCost" class="comment-textarea hidden w-full mt-2 p-2 border rounded-md text-sm" placeholder="Add a comment..."></textarea>
+                            <div class="flex items-center mt-1">
+                                <input type="checkbox" id="hide_s1_manualReviewCost" class="h-4 w-4 text-gray-600 hide-if-zero-checkbox" data-scenario-param="manualReviewCost">
+                                <label for="hide_s1_manualReviewCost" class="ml-1 text-xs text-gray-500" data-lang-key="hideIfZero">非表示</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-4 border rounded-lg scenario-header-s2">
+                    <div class="flex items-center justify-between">
+                        <h3 id="scenario2Title" class="subsection-title mt-0" contenteditable="true" data-edited="false">シナリオ 2 (比較)</h3>
+                    </div>
+                    <div class="space-y-4">
+                           <div class="input-group">
+                            <div class="flex justify-between items-center"><label class="input-label" data-lang-key="preAuthDecline">決済前の拒否率 (%)</label><svg class="comment-icon w-5 h-5 text-gray-400 hover:text-blue-600 cursor-pointer" data-comment-for="s2_preAuthDecline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.76c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.076-4.076a1.526 1.526 0 011.037-.443 48.282 48.282 0 005.68-.494c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"></path></svg></div>
+                            <input type="text" id="s2_preAuthDecline" value="0.5" step="0.01" class="input-field number-input diff-highlight" inputmode="decimal" data-original-value="0.5" data-previous-value="0.5">
+                            <textarea id="comment-s2_preAuthDecline" class="comment-textarea hidden w-full mt-2 p-2 border rounded-md text-sm" placeholder="Add a comment..."></textarea>
+                            <div class="flex items-center mt-1">
+                                <input type="checkbox" id="hide_s2_preAuthDecline" class="h-4 w-4 text-gray-600 hide-if-zero-checkbox" data-scenario-param="preAuthDecline">
+                                <label for="hide_s2_preAuthDecline" class="ml-1 text-xs text-gray-500" data-lang-key="hideIfZero">非表示</label>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <div class="flex justify-between items-center"><label class="input-label" data-lang-key="postAuthAuto">決済後の拒否率 (自動) (%)</label><svg class="comment-icon w-5 h-5 text-gray-400 hover:text-blue-600 cursor-pointer" data-comment-for="s2_postAuthAuto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.76c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.076-4.076a1.526 1.526 0 011.037-.443 48.282 48.282 0 005.68-.494c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"></path></svg></div>
+                            <input type="text" id="s2_postAuthAuto" value="0" class="input-field number-input" inputmode="decimal" data-original-value="0" data-previous-value="0">
+                            <textarea id="comment-s2_postAuthAuto" class="comment-textarea hidden w-full mt-2 p-2 border rounded-md text-sm" placeholder="Add a comment..."></textarea>
+                            <div class="flex items-center mt-1">
+                                <input type="checkbox" id="hide_s2_postAuthAuto" class="h-4 w-4 text-gray-600 hide-if-zero-checkbox" data-scenario-param="postAuthAuto">
+                                <label for="hide_s2_postAuthAuto" class="ml-1 text-xs text-gray-500" data-lang-key="hideIfZero">非表示</label>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <div class="flex justify-between items-center"><label class="input-label" data-lang-key="postAuthManual">決済後の拒否率 (目検) (%)</label><svg class="comment-icon w-5 h-5 text-gray-400 hover:text-blue-600 cursor-pointer" data-comment-for="s2_postAuthManual" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.76c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.076-4.076a1.526 1.526 0 011.037-.443 48.282 48.282 0 005.68-.494c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"></path></svg></div>
+                            <input type="text" id="s2_postAuthManual" value="0" class="input-field number-input" inputmode="decimal" data-original-value="0" data-previous-value="0">
+                            <textarea id="comment-s2_postAuthManual" class="comment-textarea hidden w-full mt-2 p-2 border rounded-md text-sm" placeholder="Add a comment..."></textarea>
+                            <div class="flex items-center mt-1">
+                                <input type="checkbox" id="hide_s2_postAuthManual" class="h-4 w-4 text-gray-600 hide-if-zero-checkbox" data-scenario-param="postAuthManual">
+                                <label for="hide_s2_postAuthManual" class="ml-1 text-xs text-gray-500" data-lang-key="hideIfZero">非表示</label>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <div class="flex justify-between items-center"><label class="input-label" data-lang-key="threeDSUsage">3DS利用率 (%)</label><svg class="comment-icon w-5 h-5 text-gray-400 hover:text-blue-600 cursor-pointer" data-comment-for="s2_3dsUsage" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.76c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.076-4.076a1.526 1.526 0 011.037-.443 48.282 48.282 0 005.68-.494c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"></path></svg></div>
+                            <input type="text" id="s2_3dsUsage" value="5" step="1" class="input-field number-input diff-highlight" inputmode="decimal" data-original-value="5" data-previous-value="5">
+                            <textarea id="comment-s2_3dsUsage" class="comment-textarea hidden w-full mt-2 p-2 border rounded-md text-sm" placeholder="Add a comment..."></textarea>
+                            <div class="flex items-center mt-1">
+                                <input type="checkbox" id="hide_s2_3dsUsage" class="h-4 w-4 text-gray-600 hide-if-zero-checkbox" data-scenario-param="3dsUsage">
+                                <label for="hide_s2_3dsUsage" class="ml-1 text-xs text-gray-500" data-lang-key="hideIfZero">非表示</label>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <div class="flex justify-between items-center"><label class="input-label" data-lang-key="threeDSError">3DSエラー率 (%)</label><svg class="comment-icon w-5 h-5 text-gray-400 hover:text-blue-600 cursor-pointer" data-comment-for="s2_3dsError" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.76c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.076-4.076a1.526 1.526 0 011.037-.443 48.282 48.282 0 005.68-.494c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"></path></svg></div>
+                            <input type="text" id="s2_3dsError" value="50" class="input-field number-input diff-highlight" inputmode="decimal" data-original-value="50" data-previous-value="50">
+                            <textarea id="comment-s2_3dsError" class="comment-textarea hidden w-full mt-2 p-2 border rounded-md text-sm" placeholder="Add a comment..."></textarea>
+                            <div class="flex items-center mt-1">
+                                <input type="checkbox" id="hide_s2_3dsError" class="h-4 w-4 text-gray-600 hide-if-zero-checkbox" data-scenario-param="3dsError">
+                                <label for="hide_s2_3dsError" class="ml-1 text-xs text-gray-500" data-lang-key="hideIfZero">非表示</label>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <div class="flex justify-between items-center"><label class="input-label" data-lang-key="authRate">与信成功率 (%)</label><svg class="comment-icon w-5 h-5 text-gray-400 hover:text-blue-600 cursor-pointer" data-comment-for="s2_authRate" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.76c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.076-4.076a1.526 1.526 0 011.037-.443 48.282 48.282 0 005.68-.494c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"></path></svg></div>
+                            <input type="text" id="s2_authRate" value="97.81" class="input-field number-input diff-highlight" inputmode="decimal" data-original-value="97.81" data-previous-value="97.81">
+                            <textarea id="comment-s2_authRate" class="comment-textarea hidden w-full mt-2 p-2 border rounded-md text-sm" placeholder="Add a comment..."></textarea>
+                            <div class="flex items-center mt-1">
+                                <input type="checkbox" id="hide_s2_authRate" class="h-4 w-4 text-gray-600 hide-if-zero-checkbox" data-scenario-param="authRate">
+                                <label for="hide_s2_authRate" class="ml-1 text-xs text-gray-500" data-lang-key="hideIfZero">非表示</label>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <div class="flex justify-between items-center"><label class="input-label" data-lang-key="chargebackRate">チャージバック率 (%)</label><svg class="comment-icon w-5 h-5 text-gray-400 hover:text-blue-600 cursor-pointer" data-comment-for="s2_chargebackRate" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.76c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.076-4.076a1.526 1.526 0 011.037-.443 48.282 48.282 0 005.68-.494c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"></path></svg></div>
+                            <input type="text" id="s2_chargebackRate" value="0" step="0.0001" class="input-field number-input" inputmode="decimal" data-original-value="0" data-previous-value="0">
+                            <textarea id="comment-s2_chargebackRate" class="comment-textarea hidden w-full mt-2 p-2 border rounded-md text-sm" placeholder="Add a comment..."></textarea>
+                            <div class="flex items-center mt-1">
+                                <input type="checkbox" id="hide_s2_chargebackRate" class="h-4 w-4 text-gray-600 hide-if-zero-checkbox" data-scenario-param="chargebackRate">
+                                <label for="hide_s2_chargebackRate" class="ml-1 text-xs text-gray-500" data-lang-key="hideIfZero">非表示</label>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <div class="flex justify-between items-center"><label class="input-label" data-lang-key="fixedFee">固定費用 (円)</label><svg class="comment-icon w-5 h-5 text-gray-400 hover:text-blue-600 cursor-pointer" data-comment-for="s2_fixedFee" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.76c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.076-4.076a1.526 1.526 0 011.037-.443 48.282 48.282 0 005.68-.494c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"></path></svg></div>
+                            <input type="text" id="s2_fixedFee" value="12000000" class="input-field number-input diff-highlight" inputmode="decimal" data-original-value="12000000" data-previous-value="12000000">
+                            <textarea id="comment-s2_fixedFee" class="comment-textarea hidden w-full mt-2 p-2 border rounded-md text-sm" placeholder="Add a comment..."></textarea>
+                            <div class="flex items-center mt-1">
+                                <input type="checkbox" id="hide_s2_fixedFee" class="h-4 w-4 text-gray-600 hide-if-zero-checkbox" data-scenario-param="fixedFee">
+                                <label for="hide_s2_fixedFee" class="ml-1 text-xs text-gray-500" data-lang-key="hideIfZero">非表示</label>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <div class="flex justify-between items-center"><label class="input-label" data-lang-key="percentageFee">補填費用 (%)</label><svg class="comment-icon w-5 h-5 text-gray-400 hover:text-blue-600 cursor-pointer" data-comment-for="s2_percentageFee" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.76c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.076-4.076a1.526 1.526 0 011.037-.443 48.282 48.282 0 005.68-.494c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"></path></svg></div>
+                            <input type="text" id="s2_percentageFee" value="0.25" class="input-field number-input diff-highlight" inputmode="decimal" data-original-value="0.25" data-previous-value="0.25">
+                            <textarea id="comment-s2_percentageFee" class="comment-textarea hidden w-full mt-2 p-2 border rounded-md text-sm" placeholder="Add a comment..."></textarea>
+                            <div class="flex items-center mt-1">
+                                <input type="checkbox" id="hide_s2_percentageFee" class="h-4 w-4 text-gray-600 hide-if-zero-checkbox" data-scenario-param="percentageFee">
+                                <label for="hide_s2_percentageFee" class="ml-1 text-xs text-gray-500" data-lang-key="hideIfZero">非表示</label>
+                                <input type="checkbox" id="s2_applyToNon3DS" class="h-4 w-4 text-gray-600 ml-4" data-scenario-param="applyToNon3DS" checked="checked">
+                                <label for="s2_applyToNon3DS" class="ml-1 text-xs text-gray-500" data-lang-key="applyToNon3DS">3DS無しにのみ適用</label>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <div class="flex justify-between items-center"><label class="input-label" data-lang-key="perTransactionCost">取引毎のコスト (円)</label><svg class="comment-icon w-5 h-5 text-gray-400 hover:text-blue-600 cursor-pointer" data-comment-for="s2_perTransactionCost" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.76c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.076-4.076a1.526 1.526 0 011.037-.443 48.282 48.282 0 005.68-.494c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"></path></svg></div>
+                            <input type="text" id="s2_perTransactionCost" value="0" class="input-field number-input" inputmode="decimal" data-original-value="0" data-previous-value="0">
+                            <textarea id="comment-s2_perTransactionCost" class="comment-textarea hidden w-full mt-2 p-2 border rounded-md text-sm" placeholder="Add a comment..."></textarea>
+                            <div class="flex items-center mt-1">
+                                <input type="checkbox" id="hide_s2_perTransactionCost" class="h-4 w-4 text-gray-600 hide-if-zero-checkbox" data-scenario-param="perTransactionCost">
+                                <label for="hide_s2_perTransactionCost" class="ml-1 text-xs text-gray-500" data-lang-key="hideIfZero">非表示</label>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <div class="flex justify-between items-center"><label class="input-label" data-lang-key="manualReviewCost">年間目検費用 (円)</label><svg class="comment-icon w-5 h-5 text-gray-400 hover:text-blue-600 cursor-pointer" data-comment-for="s2_manualReviewCost" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.76c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.076-4.076a1.526 1.526 0 011.037-.443 48.282 48.282 0 005.68-.494c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"></path></svg></div>
+                            <input type="text" id="s2_manualReviewCost" value="0" class="input-field number-input" inputmode="decimal" data-original-value="0" data-previous-value="0">
+                            <textarea id="comment-s2_manualReviewCost" class="comment-textarea hidden w-full mt-2 p-2 border rounded-md text-sm" placeholder="Add a comment..."></textarea>
+                            <div class="flex items-center mt-1">
+                                <input type="checkbox" id="hide_s2_manualReviewCost" class="h-4 w-4 text-gray-600 hide-if-zero-checkbox" data-scenario-param="manualReviewCost">
+                                <label for="hide_s2_manualReviewCost" class="ml-1 text-xs text-gray-500" data-lang-key="hideIfZero">非表示</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-6 input-group">
+                <div class="flex justify-between items-center"><label for="retryRate" class="input-label" data-lang-key="retryRate">再試行率 (%) (別カードや別の支払い方法でリトライを考慮し、売上増加効果を保守的に計算)</label><svg class="comment-icon w-5 h-5 text-gray-400 hover:text-blue-600 cursor-pointer" data-comment-for="retryRate" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.76c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.076-4.076a1.526 1.526 0 011.037-.443 48.282 48.282 0 005.68-.494c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"></path></svg></div>
+                <div class="flex items-center space-x-4"><input type="range" id="retryRate" min="0" max="100" step="5" value="0" class="w-full slider-track"><span id="retryRateValue" class="font-semibold text-gray-700 w-16 text-right">0%</span></div>
+                <textarea id="comment-retryRate" class="comment-textarea hidden w-full mt-2 p-2 border rounded-md text-sm" placeholder="Add a comment..."></textarea>
+            </div>
+        </div>
+        
+        <div class="flex justify-center mt-6 mb-8 space-x-4">
+            <button id="calculate-button" class="bg-purple-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-purple-700 transition-colors text-lg shadow-md">
+                <span data-lang-key="calculateButton">計算</span>
+            </button>
+            <button id="show-all-inputs-button" class="bg-gray-500 text-white font-bold py-3 px-6 rounded-lg hover:bg-gray-600 transition-colors text-lg shadow-md">
+                <span data-lang-key="showAllInputs">非表示の項目をすべて表示</span>
+            </button>
+        </div>
+
+        <div class="section-container">
+            <h2 class="section-title" data-lang-key="revenueTitle">2. 取扱高の変化</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div id="funnel1Container" class="p-4 bg-gray-50 rounded-lg"> <h3 class="text-lg font-bold text-center text-gray-700 mb-4">シナリオ 1 (ベース)</h3> <div class="space-y-1"> 
+            <div class="funnel-stage" style="width: 100%;" title="年間取引試行回数"><strong>支払い試行</strong><br><span class="funnel-number">3,182,624</span></div> 
+            <div class="funnel-decline" title="支払い試行回数 * 決済前の拒否率 (0.00%)"><span>決済前の拒否</span>: <span class="funnel-number">0</span></div> 
+            <div class="funnel-stage" style="width: 98%;" title="支払い試行回数 - 決済前の拒否数"><strong>決済試行</strong><br><span class="funnel-number">3,182,624</span></div> 
+            <div class="funnel-decline" title="決済試行数 * 3DS利用率 (100.00%) * 3DSエラー率 (6.00%)"><span>3DS失敗</span>: <span class="funnel-number">190,957</span></div> 
+            <div class="funnel-stage" style="width: 96%;" title="与信数 - 3DS失敗数"><strong>与信数</strong><br><span class="funnel-number">2,991,667</span></div> 
+            <div class="funnel-decline" title="与信数 * (1 - 与信成功率 97.41%)"><span>与信失敗</span>: <span class="funnel-number">77,484</span></div> 
+            <div class="funnel-stage" style="width: 94%;" title="与信数 - 与信失敗数"><strong>与信成功数</strong><br><span class="funnel-number">2,914,182</span></div> 
+            <div class="funnel-decline" title="総試行回数 * (決済後の拒否率(自動) 0.00% + 決済後の拒否率(目検) 0.00%)"><span>決済後の拒否</span>: <span class="funnel-number">0</span></div> 
+            <div class="funnel-stage success" style="width: 92%;" title="与信成功数 - 決済後の拒否数"><strong>支払い成功数</strong><br><span class="funnel-number">2,914,182</span></div> 
+            <hr class="my-4 border-dashed"> 
+            <div class="text-center p-2 rounded-lg bg-blue-100"><p class="font-semibold">取扱高</p><p class="funnel-revenue-value text-blue-800" title="支払い成功数 * 平均取引額">504.2億円</p></div> 
+             </div></div>
+                <div id="funnel2Container" class="p-4 bg-gray-50 rounded-lg"> <h3 class="text-lg font-bold text-center text-gray-700 mb-4">シナリオ 2 (比較)</h3> <div class="space-y-1"> 
+            <div class="funnel-stage" style="width: 100%;" title="年間取引試行回数"><strong>支払い試行</strong><br><span class="funnel-number">3,182,624</span></div> 
+            <div class="funnel-decline" title="支払い試行回数 * 決済前の拒否率 (0.50%)"><span>決済前の拒否</span>: <span class="funnel-number">15,913</span></div> 
+            <div class="funnel-stage" style="width: 98%;" title="支払い試行回数 - 決済前の拒否数"><strong>決済試行</strong><br><span class="funnel-number">3,166,711</span></div> 
+            <div class="funnel-decline" title="決済試行数 * 3DS利用率 (5.00%) * 3DSエラー率 (50.00%)"><span>3DS失敗</span>: <span class="funnel-number">79,168</span></div> 
+            <div class="funnel-stage" style="width: 96%;" title="与信数 - 3DS失敗数"><strong>与信数</strong><br><span class="funnel-number">3,087,543</span></div> 
+            <div class="funnel-decline" title="与信数 * (1 - 与信成功率 97.81%)"><span>与信失敗</span>: <span class="funnel-number">67,617</span></div> 
+            <div class="funnel-stage" style="width: 94%;" title="与信数 - 与信失敗数"><strong>与信成功数</strong><br><span class="funnel-number">3,019,926</span></div> 
+            <div class="funnel-decline" title="総試行回数 * (決済後の拒否率(自動) 0.00% + 決済後の拒否率(目検) 0.00%)"><span>決済後の拒否</span>: <span class="funnel-number">0</span></div> 
+            <div class="funnel-stage success" style="width: 92%;" title="与信成功数 - 決済後の拒否数"><strong>支払い成功数</strong><br><span class="funnel-number">3,019,926</span></div> 
+            <hr class="my-4 border-dashed"> 
+            <div class="text-center p-2 rounded-lg bg-blue-100"><p class="font-semibold">取扱高</p><p class="funnel-revenue-value text-blue-800" title="支払い成功数 * 平均取引額">562.8億円</p></div> 
+            <div class="text-center p-2 rounded-lg bg-indigo-100 mt-2"><p class="font-semibold">リトライを考慮した保守的な取扱高</p><p class="funnel-revenue-value text-indigo-800" title="再試行率を考慮した保守的な取扱高">562.8億円</p></div> </div></div>
+            </div>
+            <div id="revenueConclusion" class="conclusion-box"><p>コンバージョン率の改善により、支払い成功数が<strong>105,744</strong>件増加しました。</p><p class="mt-2">これにより、取扱高は<strong>58.6億円</strong>増加します。</p><p class="mt-4 text-lg font-bold text-green-700">再試行を考慮しても、取扱高は<strong class="text-green-700 text-xl">58.6億円</strong>増加します。</p></div>
+        </div>
+        <div class="section-container">
+            <h2 class="section-title" data-lang-key="costTitle">3. コストの変化</h2>
+            <div id="costTableContainer" class="overflow-x-auto"><table class="w-full text-left"><thead><tr class="border-b"><th class="p-2">コスト項目</th><th class="p-2">シナリオ 1 (ベース)</th><th class="p-2">シナリオ 2 (比較)</th><th class="p-2">変動</th></tr></thead><tbody><tr class="border-b"><td class="p-2 font-medium">ベンダーコスト</td><td class="p-2">0円</td><td class="p-2">1.5億円</td><td class="p-2 text-red-600">1.5億円</td></tr><tr class="font-bold bg-gray-100 text-lg"><td class="p-2">総費用</td><td class="p-2">0円</td><td class="p-2">1.5億円</td><td class="p-2 text-red-600">1.5億円</td></tr></tbody></table></div>
+            <div id="costConclusion" class="conclusion-box"><p><strong>シナリオ 2 (比較)</strong>シナリオに移行することで、年間総コストは<strong>1.5億円</strong>増加します。</p></div>
+        </div>
+        <div class="section-container">
+            <h2 class="section-title" data-lang-key="roiTitle">4. ROIの概要</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                <div class="roi-card">
+                    <h3 class="roi-label" data-lang-key="roiRevenue">保守的な取扱高増加</h3>
+                    <p id="roi_revenue" class="roi-value text-green-600">58.6億円</p>
+                </div>
+                <div class="roi-card">
+                    <h3 class="roi-label" data-lang-key="roiCost">コスト変動</h3>
+                    <p id="roi_cost" class="roi-value text-red-600">1.5億円</p>
+                </div>
+                <div class="roi-card" id="roi-card-percent" style="display: block;">
+                    <h3 class="roi-label" data-lang-key="roiPercent">投資収益率 (ROI)</h3>
+                    <p id="roi_percent" class="roi-value text-purple-600">40.2倍</p>
+                </div>
+            </div>
+            <div id="summaryTableContainer" class="mt-8"><h3 class="subsection-title text-center">最終インパクトサマリー</h3>
+                <table class="w-full text-center mt-4">
+                    <thead class="bg-gray-200">
+                        <tr>
+                            <th class="p-3 font-semibold text-left">項目</th>
+                            <th class="p-3 font-semibold">シナリオ 1 (ベース)</th>
+                            <th class="p-3 font-semibold">シナリオ 2 (比較)</th>
+                            <th class="p-3 font-semibold">インパクト</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b-2 border-gray-300">
+                            <td class="p-3 font-bold text-left">リトライを考慮した保守的な取扱高</td>
+                            <td class="font-bold">504.2億円</td>
+                            <td class="font-bold">562.8億円</td>
+                            <td class="font-bold text-green-600">58.6億円</td>
+                        </tr><tr class="border-b">
+                        <td class="p-3 text-left pl-6">ベンダーコスト</td>
+                        <td>0円</td>
+                        <td>1.5億円</td>
+                        <td class="font-semibold text-red-600">1.5億円</td>
+                    </tr><tr class="border-b-2 border-gray-300 font-bold">
+                <td class="p-3 text-left">総費用</td>
+                <td>0円</td>
+                <td>1.5億円</td>
+                <td class="text-red-600">1.5億円</td>
+            </tr></tbody></table></div>
+        </div>
+    </div>
+
+    <script>
+        const { jsPDF } = window.jspdf;
+        // --- TRANSLATIONS ---
+        const translations = {
+            en: {
+                mainTitle: "ROI Business Case Tool", mainSubtitle: "An interactive tool to compare scenarios and quantify business impact.", exportPdf: "Export to PDF", exportHtml: "Export HTML", calculateButton: "Calculate", showAllInputs: "Show All Hidden Inputs", assumptionsTitle: "1. Scenario Assumptions", commonFactsTitle: "Facts Apply for Both Scenarios", annualAttempts: "Annual Transaction Attempts", atvSuccess: "ATV - Successful (¥)", atvDecline: "ATV - Declined (¥)", threeDSCost: "3DS Cost per Transaction (¥)", perTransactionCost: "Per Transaction Cost (¥)", 
+                retryRate: "Retry % (Adjuster for successful retries on different cards)", scenario1: "Scenario 1 (Base)", scenario2: "Scenario 2 (Comparative)", baseScenario: "Base Scenario", preAuthDecline: "Pre-Auth Decline Rate (%)", postAuthAuto: "Post-Auth Decline (Auto) (%)", postAuthManual: "Post-Auth Decline (Manual) (%)", threeDSUsage: "3DS Usage Rate (%)", threeDSError: "3DS Error Rate (%)", authRate: "Authorization Rate (%)", chargebackRate: "Chargeback Ratio (%)", fixedFee: "Fixed Fee (¥)", percentageFee: "Percentage Fee (%)", manualReviewCost: "Annual Manual Review Cost (¥)", revenueTitle: "2. Revenue Change", costTitle: "3. Cost Change", roiTitle: "4. ROI Summary", roiRevenue: "Conservative Revenue Increase", roiCost: "Net Cost Change", roiPercent: "Return on Investment (ROI)", conclusion1: (val) => `Due to better conversion, completed transactions increased by <strong>${val}</strong>.`, conclusion2: (val) => `This means the revenue will increase by <strong>${val}</strong>.`, conclusion3: (val) => `Even conservatively considering retries, revenue will still increase by ${val}.`, costConclusion: (name, verb, val) => `By moving to the <strong>${name}</strong> scenario, the total annual cost will ${verb} by <strong>${val}</strong>.`, increase: 'increase', decrease: 'decrease', costItem: 'Cost Item', change: 'Change', chargebackCost: 'Chargeback Cost', threeDSCostItem: '3DS Cost', manualReviewCostItem: 'Manual Review Cost', toolCostItem: 'Vendor Cost', totalCost: 'Total Cost', hideIfZero: "Hide", applyToNon3DS: "Apply only to non-3DS", funnel: { totalAttempts: "Total Attempts", preAuthDecline: "Pre-Auth Decline", afterPreAuth: "After Pre-Auth", threeDsDecline: "3DS Decline", after3DS: "After 3DS", authDecline: "Authorization Decline", afterAuth: "After Authorization", postAuthDecline: "Post-Auth Decline", completed: "Completed Transactions", grossRevenue: "Gross Revenue", conservativeRevenue: "Conservative Revenue", }, summaryTable: { title: "Final Impact Summary", metric: "Metric", impact: "Impact" }
+            },
+            jp: {
+                mainTitle: "Forter導入インパクト試算", mainSubtitle: "", exportPdf: "PDFにエクスポート", exportHtml: "HTMLをエクスポート", calculateButton: "計算", showAllInputs: "非表示の項目をすべて表示", assumptionsTitle: "1. シナリオの前提条件", commonFactsTitle: "両シナリオに共通の事実", annualAttempts: "年間取引試行回数", atvSuccess: "平均取引額-成功決済 (円)", atvDecline: "平均取引額-失敗決済 (円)", threeDSCost: "取引毎の3DSコスト (円)", perTransactionCost: "取引毎のコスト (円)", 
+                retryRate: "再試行率 (%) (別カードや別の支払い方法でリトライを考慮し、売上増加効果を保守的に計算)", scenario1: "シナリオ 1 (ベース)", scenario2: "シナリオ 2 (比較)", baseScenario: "ベースシナリオ", preAuthDecline: "決済前の拒否率 (%)", postAuthAuto: "決済後の拒否率 (自動) (%)", postAuthManual: "決済後の拒否率 (目検) (%)", threeDSUsage: "3DS利用率 (%)", threeDSError: "3DSエラー率 (%)", authRate: "与信成功率 (%)", chargebackRate: "チャージバック率 (%)", fixedFee: "固定費用 (円)", percentageFee: "補填費用 (%)", manualReviewCost: "年間目検費用 (円)", revenueTitle: "2. 取扱高の変化", costTitle: "3. コストの変化", roiTitle: "4. ROIの概要", roiRevenue: "保守的な取扱高増加", roiCost: "コスト変動", roiPercent: "投資収益率 (ROI)", conclusion1: (val) => `コンバージョン率の改善により、支払い成功数が<strong>${val}</strong>件増加しました。`, conclusion2: (val) => `これにより、取扱高は<strong>${val}</strong>増加します。`, conclusion3: (val) => `再試行を考慮しても、取扱高は<strong class="text-green-700 text-xl">${val}</strong>増加します。`, costConclusion: (name, verb, val) => `<strong>${name}</strong>シナリオに移行することで、年間総コストは<strong>${val}</strong>${verb}します。`, increase: '増加', decrease: '減少', costItem: 'コスト項目', change: '変動', chargebackCost: 'チャージバックコスト', threeDSCostItem: '3DS コスト', manualReviewCostItem: '目検コスト', toolCostItem: 'ベンダーコスト', totalCost: '総費用',
+                hideIfZero: "非表示",
+                applyToNon3DS: "3DS無しにのみ適用",
+                funnel: { totalAttempts: "支払い試行", preAuthDecline: "決済前の拒否", afterPreAuth: "決済試行", threeDsDecline: "3DS失敗", after3DS: "与信数", authDecline: "与信失敗", afterAuth: "与信成功数", postAuthDecline: "決済後の拒否", completed: "支払い成功数", grossRevenue: "取扱高", conservativeRevenue: "リトライを考慮した保守的な取扱高", },
+                funnel_tooltips: {
+                    start: "年間取引試行回数",
+                    preAuthDecline: (p) => `支払い試行回数 * 決済前の拒否率 (${fPer(p)})`,
+                    afterPreAuth: "支払い試行回数 - 決済前の拒否数",
+                    threeDsDecline: (p1, p2) => `決済試行数 * 3DS利用率 (${fPer(p1)}) * 3DSエラー率 (${fPer(p2)})`,
+                    after3DS: "与信数 - 3DS失敗数",
+                    authDecline: (p) => `与信数 * (1 - 与信成功率 ${fPer(p)})`,
+                    afterAuth: "与信数 - 与信失敗数",
+                    postAuthDecline: (p1, p2) => `総試行回数 * (決済後の拒否率(自動) ${fPer(p1)} + 決済後の拒否率(目検) ${fPer(p2)})`,
+                    completed: "与信成功数 - 決済後の拒否数",
+                    grossRevenue: "支払い成功数 * 平均取引額",
+                    conservativeRevenue: "再試行率を考慮した保守的な取扱高"
+                },
+                summaryTable: { title: "最終インパクトサマリー", metric: "項目", impact: "インパクト" }
+            }
+        };
+
+        const fNum = (num) => new Intl.NumberFormat('en-US').format(Math.round(num));
+        
+        const fCur = (num, lang) => {
+            const roundedNum = Math.round(num);
+            if (isNaN(roundedNum)) {
+                return (lang === 'jp') ? "NaN円" : "NaN";
+            }
+            if (lang === 'jp') {
+                if (Math.abs(roundedNum) >= 100000000) {
+                    return `${(roundedNum / 100000000).toLocaleString('ja-JP', {maximumFractionDigits: 1})}億円`;
+                }
+                if (Math.abs(roundedNum) >= 10000) {
+                    return `${(roundedNum / 10000).toLocaleString('ja-JP', {maximumFractionDigits: 0})}万円`;
+                }
+                return `${roundedNum.toLocaleString('ja-JP')}円`;
+            } else {
+                return `¥${roundedNum.toLocaleString()}`;
+            }
+        };
+    
+        const fPer = (num) => `${(num).toFixed(2)}%`;
+
+        let allInputs = [];
+        let currentLang = 'jp';
+        window.currentCurrency = 'JPY'; 
+
+        // Function to remove commas and other non-numeric characters for parsing
+        function deformatNumber(str) {
+            return typeof str === 'string' ? str.replace(/,/g, '') : str;
+        }
+
+        // Function to get all input values, handling number formatting
+        function getInputs() {
+            const data = {};
+            allInputs.forEach(input => {
+                if(input.type === 'radio') {
+                    if(input.checked) data[input.name] = input.value;
+                } else if (input.id === 'mainTitleEditable' || input.id === 'scenario1Title' || input.id === 'scenario2Title') {
+                    data[input.id] = input.textContent; // Read directly from contenteditable h1/h3
+                } else if (input.type === 'checkbox') { // Handle checkboxes
+                    data[input.id] = input.checked;
+                } else {
+                    let value = input.value;
+                    if (input.classList.contains('number-input')) {
+                        // For number inputs, always use the originalValue for calculations
+                        value = input.dataset.originalValue || value;
+                    }
+                    data[input.id] = (input.type === 'range' ? parseFloat(value) : value);
+                }
+            });
+            return data;
+        }
+
+        // Function to parse input data into a usable structure
+        function parseInputs(data) {
+            return {
+                annualAttempts: parseFloat(data.annualAttempts) || 0, 
+                atvSuccess: parseFloat(data.atvSuccess) || 0, 
+                atvDecline: parseFloat(data.atvDecline) || 0, 
+                threeDSCost: parseFloat(data.threeDSCost) || 0, 
+                retryRate: parseFloat(data.retryRate),
+                s1: {
+                    name: data.scenario1Title,
+                    preAuthDecline: parseFloat(data.s1_preAuthDecline),
+                    postAuthAuto: parseFloat(data.s1_postAuthAuto),
+                    postAuthManual: parseFloat(data.s1_postAuthManual),
+                    '3dsUsage': parseFloat(data.s1_3dsUsage),
+                    '3dsError': parseFloat(data.s1_3dsError),
+                    authRate: parseFloat(data.s1_authRate),
+                    chargebackRate: parseFloat(data.s1_chargebackRate),
+                    fixedFee: parseFloat(data.s1_fixedFee) || 0,
+                    percentageFee: parseFloat(data.s1_percentageFee),
+                    perTransactionCost: parseFloat(data.s1_perTransactionCost) || 0, 
+                    manualReviewCost: parseFloat(data.s1_manualReviewCost) || 0,
+                    applyToNon3DS: data.s1_applyToNon3DS
+                },
+                s2: {
+                    name: data.scenario2Title,
+                    preAuthDecline: parseFloat(data.s2_preAuthDecline),
+                    postAuthAuto: parseFloat(data.s2_postAuthAuto),
+                    postAuthManual: parseFloat(data.s2_postAuthManual),
+                    '3dsUsage': parseFloat(data.s2_3dsUsage),
+                    '3dsError': parseFloat(data.s2_3dsError),
+                    authRate: parseFloat(data.s2_authRate),
+                    chargebackRate: parseFloat(data.s2_chargebackRate),
+                    fixedFee: parseFloat(data.s2_fixedFee) || 0,
+                    percentageFee: parseFloat(data.s2_percentageFee),
+                    perTransactionCost: parseFloat(data.s2_perTransactionCost) || 0, 
+                    manualReviewCost: parseFloat(data.s2_manualReviewCost) || 0,
+                    applyToNon3DS: data.s2_applyToNon3DS
+                }
+            };
+        }
+
+        // Function to calculate scenario outcomes
+        function calculateScenario(annualAttempts, atvSuccess, atvDecline, scenarioInputs) {
+            const funnel = {};
+            funnel.start = annualAttempts;
+            funnel.preAuthDecline = funnel.start * (scenarioInputs.preAuthDecline / 100);
+            funnel.afterPreAuth = funnel.start - funnel.preAuthDecline;
+            funnel.threeDsDecline = funnel.afterPreAuth * (scenarioInputs['3dsUsage'] / 100) * (scenarioInputs['3dsError'] / 100);
+            funnel.after3DS = funnel.afterPreAuth - funnel.threeDsDecline;
+            funnel.authDecline = funnel.after3DS * (1 - (scenarioInputs.authRate / 100));
+            funnel.afterAuth = funnel.after3DS - funnel.authDecline;
+            funnel.postAuthDecline = funnel.start * ((scenarioInputs.postAuthAuto / 100) + (scenarioInputs.postAuthManual / 100));
+            funnel.completed = funnel.afterAuth - funnel.postAuthDecline;
+            funnel.declined = funnel.start - funnel.completed;
+            
+            const revenue = {};
+            revenue.raw = funnel.completed * atvSuccess;
+            return { name: scenarioInputs.name, funnel, revenue, costs: {}, scenarioInputs };
+        }
+        
+        // Function to calculate costs for a given scenario
+        function calculateCosts(results, annualAttempts, threeDSCost, atvDecline) { 
+            results.costs.chargeback = results.revenue.conservative * (results.scenarioInputs.chargebackRate / 100);
+            results.costs.threeDS = annualAttempts * (results.scenarioInputs['3dsUsage'] / 100) * threeDSCost;
+            results.costs.manualReview = results.scenarioInputs.manualReviewCost;
+            
+            let percentageFeeComponent;
+            if (results.scenarioInputs.applyToNon3DS) {
+                percentageFeeComponent = results.revenue.conservative * (results.scenarioInputs.percentageFee / 100) * (1 - (results.scenarioInputs['3dsUsage'] / 100));
+            } else {
+                percentageFeeComponent = results.revenue.conservative * (results.scenarioInputs.percentageFee / 100);
+            }
+
+            results.costs.tool = results.scenarioInputs.fixedFee 
+                               + percentageFeeComponent 
+                               + (annualAttempts * results.scenarioInputs.perTransactionCost); 
+            
+            results.costs.total = results.costs.chargeback + results.costs.threeDS + results.costs.manualReview + results.costs.tool;
+        }
+
+        // Main calculation function
+        function calculate() {
+            const rawInputs = getInputs();
+            const inputs = parseInputs(rawInputs);
+            
+            // Calculate base scenario first
+            const baseResults = calculateScenario(inputs.annualAttempts, inputs.atvSuccess, inputs.atvDecline, inputs.s1);
+
+            // Calculate comparative scenario
+            const compResults = calculateScenario(inputs.annualAttempts, inputs.atvSuccess, inputs.atvDecline, inputs.s2);
+            
+            // Raw revenue for comparative scenario
+            const completedDiff = compResults.funnel.completed - baseResults.funnel.completed;
+            compResults.revenue.raw = baseResults.revenue.raw + (completedDiff * inputs.atvDecline);
+
+            // Conservative revenue for both scenarios
+            baseResults.revenue.conservative = baseResults.revenue.raw;
+            compResults.revenue.conservative = baseResults.revenue.raw + (completedDiff * inputs.atvDecline) * (1 - (inputs.retryRate / 100));
+
+            calculateCosts(baseResults, inputs.annualAttempts, inputs.threeDSCost, inputs.atvDecline);
+            calculateCosts(compResults, inputs.annualAttempts, inputs.threeDSCost, inputs.atvDecline);
+            
+            updateUI(baseResults, compResults, inputs);
+            toggleInputVisibility(inputs);
+            highlightDifferences(inputs);
+        }
+
+        // Function to highlight differences between scenario inputs
+        function highlightDifferences(inputs) {
+            document.querySelectorAll('.input-field').forEach(input => {
+                input.classList.remove('diff-highlight');
+            });
+
+            // Find all unique scenario-specific parameters
+            const scenarioParams = [
+                'preAuthDecline', 'postAuthAuto', 'postAuthManual', '3dsUsage', '3dsError', 'authRate',
+                'chargebackRate', 'fixedFee', 'percentageFee', 'perTransactionCost', 'manualReviewCost' 
+            ];
+
+            scenarioParams.forEach(param => {
+                const s1Val = parseFloat(inputs.s1[param]);
+                const s2Val = parseFloat(inputs.s2[param]);
+                
+                // Use a small tolerance for floating point comparisons
+                const isDifferent = Math.abs(s1Val - s2Val) > 0.000001;
+
+                if (isDifferent) {
+                    const s1Input = document.getElementById(`s1_${param}`);
+                    const s2Input = document.getElementById(`s2_${param}`);
+                    if (s1Input) s1Input.classList.add('diff-highlight');
+                    if (s2Input) s2Input.classList.add('diff-highlight');
+                }
+            });
+        }
+        
+        // Function to update the UI elements
+        function updateUI(base, comp, inputs) {
+            setLanguage(currentLang, {base, comp, inputs});
+            // Update retryRateValue immediately when slider moves
+            document.getElementById('retryRateValue').textContent = `${(inputs.retryRate).toFixed(0)}%`;
+        }
+        
+        // Function to generate funnel HTML
+        function generateFunnelHTML(results, isBase) { 
+            const { name, funnel, revenue, scenarioInputs } = results; 
+            const t = translations[currentLang].funnel; 
+            const tt = translations[currentLang].funnel_tooltips || {};
+            const c = (num) => fCur(num, currentLang);
+            const p = (num) => fPer(num); 
+            let conservativeHTML = isBase ? '' : `<div class="text-center p-2 rounded-lg bg-indigo-100 mt-2"><p class="font-semibold">${t.conservativeRevenue}</p><p class="funnel-revenue-value text-indigo-800" title="${tt.conservativeRevenue || ''}">${c(revenue.conservative)}</p></div>`;
+            return ` <h3 class="text-lg font-bold text-center text-gray-700 mb-4">${name}</h3> <div class="space-y-1"> 
+            <div class="funnel-stage" style="width: 100%;" title="${tt.start || '年間取引試行回数'}"><strong>${t.totalAttempts}</strong><br><span class="funnel-number">${fNum(funnel.start)}</span></div> 
+            <div class="funnel-decline" title="${tt.preAuthDecline ? tt.preAuthDecline(scenarioInputs.preAuthDecline) : ''}"><span>${t.preAuthDecline}</span>: <span class="funnel-number">${fNum(funnel.preAuthDecline)}</span></div> 
+            <div class="funnel-stage" style="width: 98%;" title="${tt.afterPreAuth || ''}"><strong>${t.afterPreAuth}</strong><br><span class="funnel-number">${fNum(funnel.afterPreAuth)}</span></div> 
+            <div class="funnel-decline" title="${tt.threeDsDecline ? tt.threeDsDecline(scenarioInputs['3dsUsage'], scenarioInputs['3dsError']) : ''}"><span>${t.threeDsDecline}</span>: <span class="funnel-number">${fNum(funnel.threeDsDecline)}</span></div> 
+            <div class="funnel-stage" style="width: 96%;" title="${tt.after3DS || ''}"><strong>${t.after3DS}</strong><br><span class="funnel-number">${fNum(funnel.after3DS)}</span></div> 
+            <div class="funnel-decline" title="${tt.authDecline ? tt.authDecline(scenarioInputs.authRate) : ''}"><span>${t.authDecline}</span>: <span class="funnel-number">${fNum(funnel.authDecline)}</span></div> 
+            <div class="funnel-stage" style="width: 94%;" title="${tt.afterAuth || ''}"><strong>${t.afterAuth}</strong><br><span class="funnel-number">${fNum(funnel.afterAuth)}</span></div> 
+            <div class="funnel-decline" title="${tt.postAuthDecline ? tt.postAuthDecline(scenarioInputs.postAuthAuto, scenarioInputs.postAuthManual) : ''}"><span>${t.postAuthDecline}</span>: <span class="funnel-number">${fNum(funnel.postAuthDecline)}</span></div> 
+            <div class="funnel-stage success" style="width: 92%;" title="${tt.completed || ''}"><strong>${t.completed}</strong><br><span class="funnel-number">${fNum(funnel.completed)}</span></div> 
+            <hr class="my-4 border-dashed"> 
+            <div class="text-center p-2 rounded-lg bg-blue-100"><p class="font-semibold">${t.grossRevenue}</p><p class="funnel-revenue-value text-blue-800" title="${tt.grossRevenue || ''}">${c(revenue.raw)}</p></div> 
+            ${conservativeHTML} </div>`; 
+        }
+
+        // Function to update cost UI
+        function updateCostUI(base, comp, inputs) { 
+            const t = translations[currentLang]; 
+            const c = (num) => fCur(num, currentLang); 
+            
+            const costItems = [ 
+                { label: t.chargebackCost, key: 'chargeback', baseValue: base.costs.chargeback, compValue: comp.costs.chargeback, show: true },
+                { label: t.threeDSCostItem, key: 'threeDS', baseValue: base.costs.threeDS, compValue: comp.costs.threeDS, show: inputs.threeDSCost > 0 },
+                { label: t.manualReviewCostItem, key: 'manualReview', baseValue: base.costs.manualReview, compValue: comp.costs.manualReview, show: base.scenarioInputs.manualReviewCost > 0 || comp.scenarioInputs.manualReviewCost > 0 },
+                { label: t.toolCostItem, key: 'tool', baseValue: base.costs.tool, compValue: comp.costs.tool, show: true }, 
+            ]; 
+            
+            let tableHTML = `<table class="w-full text-left"><thead><tr class="border-b"><th class="p-2">${t.costItem}</th><th class="p-2">${base.name}</th><th class="p-2">${comp.name}</th><th class="p-2">${t.change}</th></tr></thead><tbody>`; 
+            
+            costItems.forEach(item => { 
+                if (!item.show) return; 
+                const change = item.compValue - item.baseValue; 
+                const impactColor = change >= 0 ? 'text-red-600' : 'text-green-600';
+
+                if (Math.abs(item.baseValue) > 0 || Math.abs(item.compValue) > 0 || Math.abs(change) > 0) {
+                    tableHTML += `<tr class="border-b"><td class="p-2 font-medium">${item.label}</td><td class="p-2">${c(item.baseValue)}</td><td class="p-2">${c(item.compValue)}</td><td class="p-2 ${impactColor}">${c(change)}</td></tr>`;
+                }
+            }); 
+            
+            const totalCostChange = comp.costs.total - base.costs.total; 
+            const totalCostImpactColor = totalCostChange >= 0 ? 'text-red-600' : 'text-green-600';
+            tableHTML += `<tr class="font-bold bg-gray-100 text-lg"><td class="p-2">${t.totalCost}</td><td class="p-2">${c(base.costs.total)}</td><td class="p-2">${c(comp.costs.total)}</td><td class="p-2 ${totalCostImpactColor}">${c(totalCostChange)}</td></tr>`; 
+            tableHTML += `</tbody></table>`; 
+            document.getElementById('costTableContainer').innerHTML = tableHTML; 
+        }
+
+        // Function to update ROI UI
+        function updateRoiUI(base, comp) { 
+            const revenueIncrease = comp.revenue.conservative - base.revenue.conservative; 
+            const costIncrease = comp.costs.total - base.costs.total; 
+            const roi = (costIncrease > 0) ? (revenueIncrease / costIncrease) : 0; 
+
+            const c = (num) => fCur(num, currentLang);
+            
+            document.getElementById('roi_revenue').textContent = c(revenueIncrease); 
+            document.getElementById('roi_cost').textContent = c(costIncrease); 
+            document.getElementById('roi_cost').className = `roi-value ${costIncrease >= 0 ? 'text-red-600' : 'text-green-600'}`; 
+            
+            const roiCard = document.getElementById('roi-card-percent');
+            if (costIncrease <= 0) {
+                roiCard.style.display = 'none';
+            } else {
+                roiCard.style.display = 'block';
+                document.getElementById('roi_percent').textContent = `${roi > 0 ? roi.toFixed(1) : 0}${currentLang === 'jp' ? '倍' : 'x'}`; 
+            }
+        }
+
+        // Function to update summary table UI
+        function updateSummaryTableUI(base, comp, inputs) {
+            const t = translations[currentLang];
+            const c = (num) => fCur(num, currentLang);
+            
+            const revenueImpact = comp.revenue.conservative - base.revenue.conservative;
+            
+            const costItems = [
+                { label: t.chargebackCost, key: 'chargeback', baseValue: base.costs.chargeback, compValue: comp.costs.chargeback, show: true },
+                { label: t.threeDSCostItem, key: 'threeDS', baseValue: base.costs.threeDS, compValue: comp.costs.threeDS, show: inputs.threeDSCost > 0 },
+                { label: t.manualReviewCostItem, key: 'manualReview', baseValue: base.costs.manualReview, compValue: comp.costs.manualReview, show: base.scenarioInputs.manualReviewCost > 0 || comp.scenarioInputs.manualReviewCost > 0 },
+                { label: t.toolCostItem, key: 'tool', baseValue: base.costs.tool, compValue: comp.costs.tool, show: true },
+            ];
+
+            let tableHTML = `<h3 class="subsection-title text-center">${t.summaryTable.title}</h3>
+                <table class="w-full text-center mt-4">
+                    <thead class="bg-gray-200">
+                        <tr>
+                            <th class="p-3 font-semibold text-left">${t.summaryTable.metric}</th>
+                            <th class="p-3 font-semibold">${base.name}</th>
+                            <th class="p-3 font-semibold">${comp.name}</th>
+                            <th class="p-3 font-semibold">${t.summaryTable.impact}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b-2 border-gray-300">
+                            <td class="p-3 font-bold text-left">${t.funnel.conservativeRevenue}</td>
+                            <td class="font-bold">${c(base.revenue.conservative)}</td>
+                            <td class="font-bold">${c(comp.revenue.conservative)}</td>
+                            <td class="font-bold text-green-600">${c(revenueImpact)}</td>
+                        </tr>`;
+
+            costItems.forEach(item => {
+                if (!item.show) return;
+                const change = item.compValue - item.baseValue;
+                const impactColor = change >= 0 ? 'text-red-600' : 'text-green-600';
+                
+                if (Math.abs(item.baseValue) > 0 || Math.abs(item.compValue) > 0 || Math.abs(change) > 0) {
+                    tableHTML += `<tr class="border-b">
+                        <td class="p-3 text-left pl-6">${item.label}</td>
+                        <td>${c(item.baseValue)}</td>
+                        <td>${c(item.compValue)}</td>
+                        <td class="font-semibold ${impactColor}">${c(change)}</td>
+                    </tr>`;
+                }
+            });
+
+            const totalCostChange = comp.costs.total - base.costs.total;
+            const totalCostImpactColor = totalCostChange >= 0 ? 'text-red-600' : 'text-green-600';
+            tableHTML += `<tr class="border-b-2 border-gray-300 font-bold">
+                <td class="p-3 text-left">${t.totalCost}</td>
+                <td>${c(base.costs.total)}</td>
+                <td>${c(comp.costs.total)}</td>
+                <td class="${totalCostImpactColor}">${c(totalCostChange)}</td>
+            </tr>`;
+
+            tableHTML += `</tbody></table>`;
+            document.getElementById('summaryTableContainer').innerHTML = tableHTML;
+        }
+
+
+        // Function to set the language and update all text content
+        function setLanguage(lang, data) {
+            currentLang = lang; 
+            document.documentElement.lang = lang; 
+            const t = translations[lang];
+            
+            document.querySelectorAll('[data-lang-key]').forEach(el => { 
+                const key = el.getAttribute('data-lang-key'); 
+                if (t[key] !== undefined) {
+                    if (el.id !== 'mainTitleEditable' && el.id !== 'scenario1Title' && el.id !== 'scenario2Title') {
+                        el.textContent = t[key];
+                    }
+                } 
+            });
+
+            const mainTitleEl = document.getElementById('mainTitleEditable');
+            if (mainTitleEl.dataset.edited !== 'true') {
+                mainTitleEl.textContent = t.mainTitle;
+            }
+
+            const scenario1TitleEl = document.getElementById('scenario1Title');
+            const scenario2TitleEl = document.getElementById('scenario2Title');
+            
+            const defaultTitles = {
+                en: { scenario1: "Scenario 1 (Base)", scenario2: "Scenario 2 (Comparative)" },
+                jp: { scenario1: "シナリオ 1 (ベース)", scenario2: "シナリオ 2 (比較)" }
+            };
+
+            if (scenario1TitleEl.dataset.edited !== 'true' || 
+                scenario1TitleEl.textContent.trim() === defaultTitles[lang === 'jp' ? 'en' : 'jp'].scenario1 ||
+                scenario1TitleEl.textContent.trim() === translations[lang].scenario1) {
+                scenario1TitleEl.textContent = defaultTitles[lang].scenario1;
+                scenario1TitleEl.dataset.edited = 'false'; 
+            }
+
+            if (scenario2TitleEl.dataset.edited !== 'true' || 
+                scenario2TitleEl.textContent.trim() === defaultTitles[lang === 'jp' ? 'en' : 'jp'].scenario2 ||
+                scenario2TitleEl.textContent.trim() === translations[lang].scenario2) {
+                scenario2TitleEl.textContent = defaultTitles[lang].scenario2;
+                scenario2TitleEl.dataset.edited = 'false';
+            }
+
+
+            const calculateButtonSpan = document.querySelector('#calculate-button span[data-lang-key="calculateButton"]');
+            if (calculateButtonSpan) {
+                calculateButtonSpan.textContent = t.calculateButton;
+            }
+            const showAllInputsButtonSpan = document.querySelector('#show-all-inputs-button span[data-lang-key="showAllInputs"]');
+            if (showAllInputsButtonSpan) {
+                showAllInputsButtonSpan.textContent = t.showAllInputs;
+            }
+
+
+            if (data) {
+                const {base, comp} = data;
+                const completedDiff = comp.funnel.completed - base.funnel.completed; 
+                const revenueDiff = comp.revenue.raw - base.revenue.raw; 
+                const conservativeDiff = comp.revenue.conservative - base.revenue.conservative; 
+                const totalCostChange = comp.costs.total - base.costs.total; 
+                const costVerb = totalCostChange >= 0 ? t.increase : t.decrease;
+                
+                const formattedConservativeDiff = fCur(conservativeDiff, lang);
+                const formattedRevenueDiff = fCur(revenueDiff, lang);
+                const formattedTotalCostChange = fCur(Math.abs(totalCostChange), lang);
+
+                let revenueConclusionHTML = `<p>${t.conclusion1(fNum(completedDiff))}</p><p class="mt-2">${t.conclusion2(formattedRevenueDiff)}</p><p class="mt-4 text-lg font-bold text-green-700">${t.conclusion3(formattedConservativeDiff)}</p>`;
+                document.getElementById('revenueConclusion').innerHTML = revenueConclusionHTML;
+                document.getElementById('costConclusion').innerHTML = `<p>${t.costConclusion(comp.name, costVerb, formattedTotalCostChange)}</p>`;
+                
+                updateCostUI(base, comp, data.inputs); 
+                updateRoiUI(base, comp);
+                updateSummaryTableUI(base, comp, data.inputs);
+                document.getElementById('funnel1Container').innerHTML = generateFunnelHTML(base, true);
+                document.getElementById('funnel2Container').innerHTML = generateFunnelHTML(comp, false);
+            }
+        }
+
+        // Function to export the current view to PDF
+        async function exportToPDF() {
+            const element = document.getElementById('app-container');
+            const controls = document.getElementById('header-controls');
+            controls.style.display = 'none'; // Hide controls for PDF export
+            const calculateButton = document.getElementById('calculate-button');
+            calculateButton.style.display = 'none'; // Hide calculate button for PDF export
+            const showAllInputsButton = document.getElementById('show-all-inputs-button');
+            showAllInputsButton.style.display = 'none'; // Hide show all inputs button for PDF export
+
+            document.querySelectorAll('.hide-if-zero-checkbox').forEach(checkbox => {
+                checkbox.style.display = 'none';
+                if (checkbox.nextElementSibling) checkbox.nextElementSibling.style.display = 'none'; 
+            });
+
+            document.querySelectorAll('[id$="_applyToNon3DS"]').forEach(checkbox => {
+                checkbox.style.display = 'none';
+                if (checkbox.nextElementSibling) checkbox.nextElementSibling.style.display = 'none'; 
+            });
+
+
+            const textareasWithContent = [];
+            document.querySelectorAll('.comment-textarea').forEach(textarea => {
+                if (textarea.value && textarea.classList.contains('hidden')) {
+                    textarea.classList.remove('hidden');
+                    textareasWithContent.push(textarea);
+                }
+            });
+            const title = document.getElementById('mainTitleEditable').textContent.trim();
+
+            await html2canvas(element, { scale: 2, windowWidth: element.scrollWidth, windowHeight: element.scrollHeight }).then(canvas => {
+                const imgData = canvas.toDataURL('image/png');
+                const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: [canvas.width, canvas.height] });
+                pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+                pdf.save(`${title}.pdf`);
+            });
+
+            controls.style.display = 'flex';
+            calculateButton.style.display = 'block'; 
+            showAllInputsButton.style.display = 'block'; 
+            textareasWithContent.forEach(textarea => textarea.classList.add('hidden'));
+            document.querySelectorAll('.hide-if-zero-checkbox').forEach(checkbox => {
+                checkbox.style.display = 'inline-block'; 
+                if (checkbox.nextElementSibling) checkbox.nextElementSibling.style.display = 'inline'; 
+            });
+            document.querySelectorAll('[id$="_applyToNon3DS"]').forEach(checkbox => {
+                checkbox.style.display = 'inline-block'; 
+                if (checkbox.nextElementSibling) checkbox.nextElementSibling.style.display = 'inline'; 
+            });
+        }
+
+        // Function to export the current HTML state
+        function exportHTML() {
+            document.querySelectorAll('.comment-textarea').forEach(textarea => {
+                textarea.innerHTML = textarea.value;
+            });
+
+            const newDoc = document.documentElement.cloneNode(true);
+            
+            const allInputsOnPage = document.querySelectorAll('input, [contenteditable="true"]');
+            const clonedInputs = newDoc.querySelectorAll('input, [contenteditable="true"]');
+            
+            clonedInputs.forEach((clonedInput, index) => {
+                const originalInput = allInputsOnPage[index];
+
+                if (originalInput.type === 'radio') {
+                    if (originalInput.checked) clonedInput.setAttribute('checked', 'checked');
+                    else clonedInput.removeAttribute('checked');
+                } else if (originalInput.hasAttribute('contenteditable')) {
+                    clonedInput.textContent = originalInput.textContent;
+                    clonedInput.setAttribute('contenteditable', 'true'); 
+                    if (originalInput.dataset.edited === 'true') {
+                        clonedInput.setAttribute('data-edited', 'true');
+                    }
+                } else if (originalInput.type === 'checkbox') { 
+                    if (originalInput.checked) clonedInput.setAttribute('checked', 'checked');
+                    else clonedInput.removeAttribute('checked');
+                }
+                else if (originalInput.classList.contains('number-input')) {
+                    if (originalInput.dataset.originalValue) {
+                        clonedInput.setAttribute('value', originalInput.dataset.originalValue);
+                    } else {
+                        clonedInput.setAttribute('value', originalInput.value);
+                    }
+                } else if (originalInput.classList.contains('hide-if-zero-checkbox')) {
+                    if (originalInput.checked) clonedInput.setAttribute('checked', 'checked');
+                    else clonedInput.removeAttribute('checked');
+                } else {
+                    clonedInput.setAttribute('value', originalInput.value);
+                }
+            });
+            
+            const langToggle = newDoc.querySelector('#language-toggle');
+            if(document.getElementById('language-toggle').checked) {
+                langToggle.setAttribute('checked', 'checked');
+            } else {
+                langToggle.removeAttribute('checked');
+            }
+
+            newDoc.querySelectorAll('.comment-textarea').forEach(textarea => {
+                if (textarea.innerHTML) { 
+                    textarea.classList.remove('hidden');
+                    const icon = newDoc.querySelector(`.comment-icon[data-comment-for="${textarea.id.replace('comment-', '')}"]`);
+                    if (icon) icon.classList.add('active');
+                }
+            });
+
+            const currentInputsState = parseInputs(getInputs()); 
+            newDoc.querySelectorAll('.hide-if-zero-checkbox').forEach(checkbox => {
+                const inputGroup = checkbox.closest('.input-group');
+                if (!inputGroup) return; 
+
+                const paramId = checkbox.id.replace('hide_s1_', '').replace('hide_s2_', ''); 
+                const isScenarioSpecific = checkbox.dataset.scenarioParam; 
+                let isZero = false;
+
+                if (isScenarioSpecific) {
+                    const s1Val = currentInputsState.s1[isScenarioSpecific];
+                    const s2Val = currentInputsState.s2[isScenarioSpecific];
+                    isZero = (s1Val === 0 && s2Val === 0);
+                } 
+
+                if (checkbox.checked && isZero) {
+                    inputGroup.classList.add('hidden');
+                } else {
+                    inputGroup.classList.remove('hidden');
+                }
+            });
+
+            const title = document.getElementById('mainTitleEditable').textContent.trim();
+
+            const htmlString = '<!DOCTYPE html>\n' + newDoc.outerHTML;
+            const blob = new Blob([htmlString], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${title}.html`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Function to initialize number formatting for inputs
+        function initializeNumberFormatting() {
+            document.querySelectorAll('.number-input').forEach(input => {
+                let initialNum = parseFloat(deformatNumber(input.value)) || 0;
+                
+                if (input.classList.contains('percentage-input')) {
+                    input.dataset.originalValue = initialNum.toString();
+                    input.value = `${initialNum.toFixed(2)}%`;
+                } else {
+                    input.dataset.originalValue = initialNum.toString();
+                    const formatterOptions = {
+                        minimumFractionDigits: 0, 
+                        // Modified logic: Use 2 decimals unless it's a "Fee" (but not "percentageFee") or a "Cost" or "attempts"
+                        maximumFractionDigits: (input.id === 'atvSuccess' || input.id === 'atvDecline' || input.id.includes('Cost') || (input.id.includes('Fee') && !input.id.includes('percentageFee')) || input.id === 'annualAttempts' || input.id.includes('3dsUsage')) ? 0 : 2 
+                    };
+                    input.value = new Intl.NumberFormat('en-US', formatterOptions).format(initialNum);
+                }
+
+                input.addEventListener('focus', (e) => {
+                    e.target.value = e.target.dataset.originalValue;
+                    e.target.select(); 
+                });
+
+                input.addEventListener('blur', (e) => {
+                    const num = parseFloat(deformatNumber(e.target.value)) || 0;
+                    
+                    const blurFormatterOptions = {
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: (e.target.id === 'atvSuccess' || e.target.id === 'atvDecline' || e.target.id.includes('Cost') || (e.target.id.includes('Fee') && !e.target.id.includes('percentageFee')) || e.target.id === 'annualAttempts' || e.target.id.includes('3dsUsage')) ? 0 : 2
+                    };
+
+                    if (e.target.classList.contains('percentage-input')) {
+                        e.target.dataset.originalValue = num.toString();
+                        e.target.value = `${num.toFixed(2)}%`; 
+                    } else {
+                        e.target.value = new Intl.NumberFormat('en-US', blurFormatterOptions).format(num);
+                        e.target.dataset.originalValue = num.toString();
+                    }
+
+                    if (parseFloat(e.target.dataset.originalValue) !== parseFloat(e.target.dataset.previousValue)) {
+                        e.target.dataset.previousValue = e.target.dataset.originalValue; 
+                        calculate();
+                    }
+                });
+                input.dataset.previousValue = input.dataset.originalValue; 
+            });
+        }
+
+        // Function to set up comment toggling functionality
+        function setupCommentToggles() {
+            document.querySelectorAll('.comment-icon').forEach(icon => {
+                icon.addEventListener('click', () => {
+                    const targetId = icon.dataset.commentFor;
+                    const textarea = document.getElementById(`comment-${targetId}`);
+                    if (textarea) {
+                        textarea.classList.toggle('hidden');
+                        if (!textarea.classList.contains('hidden')) {
+                            icon.classList.add('active');
+                            textarea.focus();
+                        } else {
+                           icon.classList.remove('active');
+                        }
+                    }
+                });
+            });
+        }
+
+        // Function to set up comment auto-hide functionality
+        function setupCommentAutohide() {
+            document.querySelectorAll('.comment-textarea').forEach(textarea => {
+                textarea.addEventListener('blur', (e) => {
+                    const targetTextarea = e.target;
+                    if (targetTextarea.value.trim() === '') {
+                        const targetId = targetTextarea.id.replace('comment-', '');
+                        const icon = document.querySelector(`.comment-icon[data-comment-for="${targetId}"]`);
+                        
+                        targetTextarea.classList.add('hidden');
+                        if (icon) {
+                            icon.classList.remove('active');
+                        }
+                    }
+                });
+            });
+        }
+
+        // Function to toggle visibility of input groups based on values being zero
+        function toggleInputVisibility(inputs) {
+            document.querySelectorAll('.hide-if-zero-checkbox').forEach(checkbox => {
+                const inputGroup = checkbox.closest('.input-group');
+                if (!inputGroup) return; 
+
+                const paramId = checkbox.id.replace('hide_s1_', '').replace('hide_s2_', ''); 
+                const isScenarioSpecific = checkbox.dataset.scenarioParam; 
+                let isZero = false;
+
+                if (isScenarioSpecific) {
+                    const s1Val = inputs.s1[isScenarioSpecific];
+                    const s2Val = inputs.s2[isScenarioSpecific];
+                    isZero = (Math.abs(s1Val) < 0.000001 && Math.abs(s2Val) < 0.000001); 
+                } 
+
+                if (checkbox.checked && isZero) {
+                    inputGroup.classList.add('hidden');
+                } else {
+                    inputGroup.classList.remove('hidden');
+                }
+            });
+        }
+
+        // Function to show all hidden input groups
+        function showAllHiddenInputs() {
+            document.querySelectorAll('.hide-if-zero-checkbox').forEach(checkbox => {
+                checkbox.checked = false; 
+                const inputGroup = checkbox.closest('.input-group');
+                if (inputGroup) {
+                    inputGroup.classList.remove('hidden'); 
+                }
+            });
+            calculate(); 
+        }
+        
+        // Event listener for when the DOM content is fully loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            const langToggle = document.getElementById('language-toggle');
+            if (langToggle) {
+                langToggle.checked = (currentLang === 'jp');
+                currentLang = langToggle.checked ? 'jp' : 'en'; 
+            }
+            
+            const mainTitleEl = document.getElementById('mainTitleEditable');
+            const scenario1TitleEl = document.getElementById('scenario1Title');
+            const scenario2TitleEl = document.getElementById('scenario2Title');
+
+            if (mainTitleEl) {
+                mainTitleEl.textContent = translations[currentLang].mainTitle;
+                mainTitleEl.dataset.edited = 'false';
+                mainTitleEl.addEventListener('input', () => mainTitleEl.dataset.edited = 'true');
+            }
+
+            if (scenario1TitleEl) {
+                scenario1TitleEl.textContent = translations[currentLang].scenario1;
+                scenario1TitleEl.dataset.edited = 'false'; 
+                scenario1TitleEl.addEventListener('input', () => scenario1TitleEl.dataset.edited = 'true');
+            }
+            if (scenario2TitleEl) {
+                scenario2TitleEl.textContent = translations[currentLang].scenario2;
+                scenario2TitleEl.dataset.edited = 'false';
+                scenario2TitleEl.addEventListener('input', () => scenario2TitleEl.dataset.edited = 'true');
+            }
+
+            allInputs = Array.from(document.querySelectorAll('input, [contenteditable="true"], textarea'));
+            
+            initializeNumberFormatting();
+            
+            setupCommentToggles(); 
+            setupCommentAutohide(); 
+            
+            calculate();
+
+            document.body.addEventListener('input', (e) => {
+                if(e.target.closest('.section-container') || e.target.classList.contains('hide-if-zero-checkbox') || e.target.hasAttribute('contenteditable') || e.target.id.includes('applyToNon3DS')) {
+                    calculate(); 
+                }
+            });
+
+            if (langToggle) {
+                langToggle.addEventListener('change', (e) => {
+                    currentLang = e.target.checked ? 'jp' : 'en';
+                    const t = translations[currentLang];
+                    
+                    const mainTitleEl = document.getElementById('mainTitleEditable');
+                    if (mainTitleEl.dataset.edited !== 'true') {
+                        mainTitleEl.textContent = t.mainTitle;
+                    }
+
+                    const s1Title = document.getElementById('scenario1Title');
+                    const s2Title = document.getElementById('scenario2Title');
+                    if (s1Title.dataset.edited !== 'true') {
+                        s1Title.textContent = t.scenario1;
+                    }
+                    if (s2Title.dataset.edited !== 'true') {
+                        s2Title.textContent = t.scenario2;
+                    }
+                    
+                    calculate();
+                });
+            }
+
+
+            document.getElementById('export-pdf').addEventListener('click', exportToPDF);
+            document.getElementById('export-html').addEventListener('click', exportHTML);
+
+            document.getElementById('calculate-button').addEventListener('click', calculate);
+            document.getElementById('show-all-inputs-button').addEventListener('click', showAllHiddenInputs);
+        });
+
+    </script>
+</body></html>
