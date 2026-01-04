@@ -151,6 +151,38 @@ export interface Database {
           created_at?: string
         }
       }
+      login_attempts: {
+        Row: {
+          id: string
+          identifier: string
+          success: boolean
+          attempted_at: string
+          blocked_until: string | null
+          user_agent: string | null
+          ip_address: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          identifier: string
+          success?: boolean
+          attempted_at?: string
+          blocked_until?: string | null
+          user_agent?: string | null
+          ip_address?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          identifier?: string
+          success?: boolean
+          attempted_at?: string
+          blocked_until?: string | null
+          user_agent?: string | null
+          ip_address?: string | null
+          created_at?: string
+        }
+      }
     }
     Views: {
       [_ in never]: never

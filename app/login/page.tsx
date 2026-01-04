@@ -18,19 +18,98 @@ export default function LoginPage() {
     setError(null)
     setLoading(true)
 
-    const supabase = createClient()
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    })
+    try {
+      // まずレート制限をチェック
+      const rateLimitResponse = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          password,
+        }),
+      })
 
-    if (error) {
-      setError(error.message)
-      setLoading(false)
-    } else {
+      const rateLimitData = await rateLimitResponse.json()
+
+      if (!rateLimitResponse.ok) {
+        // レート制限エラー（429）
+        let errorMessage = rateLimitData.error || 'ログイン試行回数が上限に達しました'
+        
+        if (rateLimitData.rateLimit) {
+          const { remainingAttempts, resetTime, blockedUntil } = rateLimitData.rateLimit
+          
+          if (blockedUntil) {
+            const blockedDate = new Date(blockedUntil)
+            errorMessage = `ログイン試行回数が上限に達しました。${blockedDate.toLocaleString('ja-JP')}までお待ちください。`
+          } else if (remainingAttempts !== undefined && remainingAttempts >= 0) {
+            if (remainingAttempts === 0) {
+              errorMessage = 'ログイン試行回数が上限に達しました。しばらく時間をおいてから再度お試しください。'
+            } else {
+              errorMessage = `${errorMessage}（残り試行回数: ${remainingAttempts}回）`
+            }
+          }
+        }
+        
+        setError(errorMessage)
+        setLoading(false)
+        return
+      }
+
+      // レート制限チェックが通過した場合、Supabaseでログインを試行
+      const supabase = createClient()
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: email.toLowerCase(),
+        password,
+      })
+
+      if (error) {
+        // 失敗を記録（APIルートで記録）
+        await fetch('/api/auth/login/record', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email: email.toLowerCase(),
+            success: false,
+          }),
+        })
+
+        let errorMessage = error.message
+        if (rateLimitData.rateLimit) {
+          const { remainingAttempts } = rateLimitData.rateLimit
+          if (remainingAttempts !== undefined && remainingAttempts > 0) {
+            errorMessage = `${errorMessage}（残り試行回数: ${remainingAttempts - 1}回）`
+          }
+        }
+        
+        setError(errorMessage)
+        setLoading(false)
+        return
+      }
+
+      // 成功を記録（APIルートで記録）
+      await fetch('/api/auth/login/record', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: email.toLowerCase(),
+          success: true,
+        }),
+      })
+
+      // ログイン成功
       const redirectTo = searchParams.get('redirect') || '/dashboard'
       router.push(redirectTo)
       router.refresh()
+    } catch (error) {
+      console.error('Login error:', error)
+      setError('ログイン処理中にエラーが発生しました')
+      setLoading(false)
     }
   }
 
