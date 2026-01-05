@@ -32,9 +32,10 @@ export default function RegisterPage() {
     const supabase = createClient()
     
     // Sign up user
-    // Note: In development, email confirmation can be disabled in Supabase settings
+    // Note: Email confirmation should be disabled in Supabase settings
+    // Authentication → Sign In / Providers → Email → "Enable email confirmations" → OFF
     const { data: authData, error: authError } = await supabase.auth.signUp({
-      email,
+      email: email.toLowerCase(),
       password,
       options: {
         emailRedirectTo: `${window.location.origin}/dashboard`,
@@ -47,22 +48,69 @@ export default function RegisterPage() {
       return
     }
 
-    if (authData.user) {
-      // Update user role (organization is no longer needed)
-      const { error: userError } = await supabase
-        .from('users')
-        // @ts-ignore - Supabase type inference issue
-        .update({ role: 'admin' })
-        .eq('id', authData.user.id)
+    // ユーザーが作成されたか確認
+    if (!authData.user) {
+      setError('ユーザーの作成に失敗しました。もう一度お試しください。')
+      setLoading(false)
+      return
+    }
 
-      if (userError) {
-        setError('ユーザー情報の更新に失敗しました: ' + userError.message)
-        setLoading(false)
-        return
-      }
+    // Update user role (organization is no longer needed)
+    const { error: userError } = await supabase
+      .from('users')
+      // @ts-ignore - Supabase type inference issue
+      .update({ role: 'admin' })
+      .eq('id', authData.user.id)
 
+    if (userError) {
+      setError('ユーザー情報の更新に失敗しました: ' + userError.message)
+      setLoading(false)
+      return
+    }
+
+    // メール確認が無効化されている場合、signUpの時点でセッションが作成される
+    // authData.sessionを直接チェック
+    if (authData.session) {
+      // セッションが既に利用可能（メール確認が無効化されている）
       router.push('/dashboard')
       router.refresh()
+      return
+    }
+
+    // セッションがまだない場合、少し待ってから再取得を試みる
+    // （Supabaseの内部処理が完了するまで待つ）
+    await new Promise(resolve => setTimeout(resolve, 500))
+    
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+    
+    if (session) {
+      // セッションが取得できた
+      router.push('/dashboard')
+      router.refresh()
+      return
+    }
+
+    // セッションが取得できない場合、明示的にログインを試みる
+    // （メール確認が無効化されていれば、これでログインできる）
+    const { data: loginData, error: loginError } = await supabase.auth.signInWithPassword({
+      email: email.toLowerCase(),
+      password,
+    })
+
+    if (loginError) {
+      // メール確認が必要な場合（Supabase設定で有効になっている）
+      setError('メール確認が必要です。メールボックスを確認してください。\n\nメール確認を無効化するには、Supabaseダッシュボードで設定を変更してください。\n\n設定場所: Authentication → Sign In / Providers → Email → "Enable email confirmations" → OFF')
+      setLoading(false)
+      return
+    }
+
+    if (loginData.session) {
+      // ログイン成功
+      router.push('/dashboard')
+      router.refresh()
+    } else {
+      setError('ログインに失敗しました。もう一度お試しください。')
+      setLoading(false)
     }
   }
 
