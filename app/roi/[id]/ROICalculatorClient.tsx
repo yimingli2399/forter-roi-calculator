@@ -27,6 +27,13 @@ export default function ROICalculatorClient({ sessionData }: ROICalculatorClient
   const [isFavorite, setIsFavorite] = useState(sessionData.is_favorite || false)
   const [saving, setSaving] = useState(false)
   const [lastSaved, setLastSaved] = useState<Date | null>(null)
+  
+  // Track last saved data to detect unsaved changes
+  const [lastSavedData, setLastSavedData] = useState<{
+    inputs: CalculationInputs
+    title: string
+    companyName: string
+  } | null>(null)
 
   // Update company name, title, and favorite status when sessionData changes (only on mount or when sessionData.id changes)
   useEffect(() => {
@@ -126,6 +133,12 @@ export default function ROICalculatorClient({ sessionData }: ROICalculatorClient
         }
 
         setLastSaved(new Date())
+        // Update last saved data snapshot
+        setLastSavedData({
+          inputs: JSON.parse(JSON.stringify(data)), // Deep copy
+          title: newTitle !== undefined ? newTitle : title,
+          companyName: newCompanyName !== undefined ? (newCompanyName.trim() || '') : (companyName.trim() || ''),
+        })
         await logAuditAction(sessionData.created_by, sessionData.id, 'edit')
       } catch (error) {
         console.error('Failed to save:', error)
@@ -172,6 +185,65 @@ export default function ROICalculatorClient({ sessionData }: ROICalculatorClient
   useEffect(() => {
     setResults(calculateROI(inputs))
   }, [inputs])
+
+  // Check if there are unsaved changes
+  const hasUnsavedChanges = useCallback((): boolean => {
+    if (!lastSavedData) {
+      // If we haven't saved yet, check if data differs from initial data
+      const initialData = getInitialData()
+      return (
+        JSON.stringify(inputs) !== JSON.stringify(initialData) ||
+        title !== sessionData.title ||
+        companyName !== (sessionData.company_name || '')
+      )
+    }
+    
+    return (
+      JSON.stringify(inputs) !== JSON.stringify(lastSavedData.inputs) ||
+      title !== lastSavedData.title ||
+      companyName !== lastSavedData.companyName
+    )
+  }, [inputs, title, companyName, lastSavedData, sessionData])
+
+  // Initialize lastSavedData after first render
+  useEffect(() => {
+    if (!lastSavedData) {
+      const initialData = getInitialData()
+      setLastSavedData({
+        inputs: JSON.parse(JSON.stringify(initialData)), // Deep copy
+        title: sessionData.title,
+        companyName: sessionData.company_name || '',
+      })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []) // Only run once on mount
+
+  // Warn before leaving page if there are unsaved changes
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (hasUnsavedChanges()) {
+        e.preventDefault()
+        e.returnValue = '保存されていない変更があります。このページを離れますか？'
+        return e.returnValue
+      }
+    }
+
+    window.addEventListener('beforeunload', handleBeforeUnload)
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload)
+    }
+  }, [hasUnsavedChanges])
+
+  // Handle navigation with unsaved changes warning
+  const handleNavigateAway = (path: string) => {
+    if (hasUnsavedChanges()) {
+      if (!confirm('保存されていない変更があります。このページを離れますか？\n\n「OK」: 変更を破棄して離れる\n「キャンセル」: このページに留まる')) {
+        return
+      }
+    }
+    router.push(path)
+  }
 
   const handleExportPDF = async () => {
     try {
@@ -298,7 +370,7 @@ export default function ROICalculatorClient({ sessionData }: ROICalculatorClient
             <div className="flex items-center space-x-6 flex-1 min-w-0">
               {/* Back button */}
               <button
-                onClick={() => router.push('/dashboard')}
+                onClick={() => handleNavigateAway('/dashboard')}
                 className="flex items-center text-gray-600 hover:text-gray-900 transition-colors shrink-0"
               >
                 <svg className="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -365,6 +437,13 @@ export default function ROICalculatorClient({ sessionData }: ROICalculatorClient
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
                     <span>保存中...</span>
+                  </div>
+                ) : hasUnsavedChanges() ? (
+                  <div className="flex items-center text-sm text-orange-600">
+                    <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                    <span className="text-xs font-medium">未保存</span>
                   </div>
                 ) : lastSaved ? (
                   <span className="text-xs text-gray-400">
