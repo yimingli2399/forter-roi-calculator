@@ -210,17 +210,30 @@ export async function exportToHTML(
       return text.replace(/[&<>"']/g, (m) => map[m])
     }
 
-    // Update comments from current DOM
+    // Update comments from inputs.comments or current DOM
     const updateComment = (fieldId: string) => {
-      const commentTextarea = document.getElementById(`comment-${fieldId}`) as HTMLTextAreaElement
-      if (commentTextarea && commentTextarea.value.trim()) {
-        const commentValue = escapeHtml(commentTextarea.value.trim())
+      // First try to get comment from inputs.comments
+      let commentValue: string | null = null
+      if (inputs.comments && inputs.comments[fieldId]) {
+        commentValue = inputs.comments[fieldId].trim()
+      }
+      
+      // If not found in inputs.comments, try to get from DOM
+      if (!commentValue) {
+        const commentTextarea = document.getElementById(`comment-${fieldId}`) as HTMLTextAreaElement
+        if (commentTextarea && commentTextarea.value.trim()) {
+          commentValue = commentTextarea.value.trim()
+        }
+      }
+      
+      if (commentValue) {
+        const escapedComment = escapeHtml(commentValue)
         // Replace the textarea content (handle multiline content)
         const commentRegex = new RegExp(
           `(id="comment-${fieldId}"[^>]*?>)[\\s\\S]*?(<\\/textarea>)`,
           'g'
         )
-        htmlString = htmlString.replace(commentRegex, `$1${commentValue}$2`)
+        htmlString = htmlString.replace(commentRegex, `$1${escapedComment}$2`)
         
         // Remove 'hidden' class if present to show the comment
         htmlString = htmlString.replace(
@@ -264,13 +277,12 @@ export async function exportToHTML(
       }
     }
 
-    // Update comments for all input fields
+    // Update comments for all input fields (excluding retryRate which doesn't have comment functionality)
     const fieldIds = [
       'annualAttempts',
       'atvSuccess',
       'atvDecline',
       'threeDSCost',
-      'retryRate',
       's1_preAuthDecline',
       's1_postAuthAuto',
       's1_postAuthManual',
