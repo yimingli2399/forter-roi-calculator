@@ -14,3 +14,4 @@ SELECT
   COUNT(*) - COUNT(email_confirmed_at) as unconfirmed_users
 FROM auth.users;
 
+

@@ -60,6 +60,7 @@ export interface CalculationInputs {
   s2: ScenarioInputs
   hiddenFields?: string[] // Array of field IDs that are hidden
   hiddenCommonFields?: string[] // Array of common field IDs that are hidden
+  comments?: { [fieldId: string]: string } // Comments for each field
 }
 
 export function calculateScenario(

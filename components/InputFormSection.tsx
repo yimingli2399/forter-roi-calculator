@@ -14,6 +14,24 @@ interface InputFormSectionProps {
   t: ReturnType<typeof getTranslation>
 }
 
+const getComment = (comments: { [fieldId: string]: string } | undefined, fieldId: string): string => {
+  return comments?.[fieldId] || ''
+}
+
+const updateComment = (
+  comments: { [fieldId: string]: string } | undefined,
+  fieldId: string,
+  value: string
+): { [fieldId: string]: string } => {
+  const newComments = { ...(comments || {}) }
+  if (value.trim()) {
+    newComments[fieldId] = value
+  } else {
+    delete newComments[fieldId]
+  }
+  return newComments
+}
+
 export default function InputFormSection({
   inputs,
   onInputsChange,
@@ -115,28 +133,52 @@ export default function InputFormSection({
               label={t.annualAttempts}
               value={inputs.annualAttempts}
               onChange={(v) => updateCommonField('annualAttempts', v)}
-              showComment={false}
+              comment={getComment(inputs.comments, 'annualAttempts')}
+              onCommentChange={(comment) => {
+                onInputsChange({
+                  ...inputs,
+                  comments: updateComment(inputs.comments, 'annualAttempts', comment),
+                })
+              }}
             />
             <InputField
               id="atvSuccess"
               label={t.atvSuccess}
               value={inputs.atvSuccess}
               onChange={(v) => updateCommonField('atvSuccess', v)}
-              showComment={false}
+              comment={getComment(inputs.comments, 'atvSuccess')}
+              onCommentChange={(comment) => {
+                onInputsChange({
+                  ...inputs,
+                  comments: updateComment(inputs.comments, 'atvSuccess', comment),
+                })
+              }}
             />
             <InputField
               id="atvDecline"
               label={t.atvDecline}
               value={inputs.atvDecline}
               onChange={(v) => updateCommonField('atvDecline', v)}
-              showComment={false}
+              comment={getComment(inputs.comments, 'atvDecline')}
+              onCommentChange={(comment) => {
+                onInputsChange({
+                  ...inputs,
+                  comments: updateComment(inputs.comments, 'atvDecline', comment),
+                })
+              }}
             />
             <InputField
               id="threeDSCost"
               label={t.threeDSCost}
               value={inputs.threeDSCost}
               onChange={(v) => updateCommonField('threeDSCost', v)}
-              showComment={false}
+              comment={getComment(inputs.comments, 'threeDSCost')}
+              onCommentChange={(comment) => {
+                onInputsChange({
+                  ...inputs,
+                  comments: updateComment(inputs.comments, 'threeDSCost', comment),
+                })
+              }}
               showHideCheckbox
               isHidden={hiddenCommonFields.has('threeDSCost')}
               onHideChange={(hidden) => {
@@ -160,6 +202,13 @@ export default function InputFormSection({
           hiddenFields={hiddenFields}
           onHiddenFieldsChange={updateHiddenFields}
           showAllHidden={showAllHidden}
+          comments={inputs.comments}
+          onCommentChange={(fieldId, comment) => {
+            onInputsChange({
+              ...inputs,
+              comments: updateComment(inputs.comments, fieldId, comment),
+            })
+          }}
         />
         <ScenarioInputs
           scenario="s2"
@@ -170,6 +219,13 @@ export default function InputFormSection({
           hiddenFields={hiddenFields}
           onHiddenFieldsChange={updateHiddenFields}
           showAllHidden={showAllHidden}
+          comments={inputs.comments}
+          onCommentChange={(fieldId, comment) => {
+            onInputsChange({
+              ...inputs,
+              comments: updateComment(inputs.comments, fieldId, comment),
+            })
+          }}
         />
       </div>
       <div className="mt-6 input-group">

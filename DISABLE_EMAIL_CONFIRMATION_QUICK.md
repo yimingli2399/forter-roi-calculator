@@ -63,3 +63,4 @@ WHERE email_confirmed_at IS NULL;
 
 ただし、新規登録時のメール確認を無効化するには、Supabaseダッシュボードの設定を変更する必要があります。
 
+

@@ -14,6 +14,8 @@ interface ScenarioInputsProps {
   hiddenFields?: Set<string>
   onHiddenFieldsChange?: (fields: Set<string>) => void
   showAllHidden?: boolean
+  comments?: { [fieldId: string]: string }
+  onCommentChange?: (fieldId: string, comment: string) => void
 }
 
 export default function ScenarioInputs({
@@ -25,6 +27,8 @@ export default function ScenarioInputs({
   hiddenFields = new Set(),
   onHiddenFieldsChange,
   showAllHidden = false,
+  comments,
+  onCommentChange,
 }: ScenarioInputsProps) {
   const t = getTranslation(lang)
   const scenarioPrefix = scenario === 's1' ? 's1' : 's2'
@@ -92,6 +96,8 @@ export default function ScenarioInputs({
           onChange={(v) => updateField('preAuthDecline', v)}
           isPercentage
           step={0.01}
+          comment={comments?.[`${scenarioPrefix}_preAuthDecline`] || ''}
+          onCommentChange={(comment) => onCommentChange?.(`${scenarioPrefix}_preAuthDecline`, comment)}
           showHideCheckbox
           isHidden={isFieldHidden('preAuthDecline')}
           onHideChange={(hidden) => toggleHidden('preAuthDecline', hidden)}
@@ -103,6 +109,8 @@ export default function ScenarioInputs({
           value={inputs.postAuthAuto}
           onChange={(v) => updateField('postAuthAuto', v)}
           isPercentage
+          comment={comments?.[`${scenarioPrefix}_postAuthAuto`] || ''}
+          onCommentChange={(comment) => onCommentChange?.(`${scenarioPrefix}_postAuthAuto`, comment)}
           showHideCheckbox
           isHidden={isFieldHidden('postAuthAuto')}
           onHideChange={(hidden) => toggleHidden('postAuthAuto', hidden)}
@@ -114,6 +122,8 @@ export default function ScenarioInputs({
           value={inputs.postAuthManual}
           onChange={(v) => updateField('postAuthManual', v)}
           isPercentage
+          comment={comments?.[`${scenarioPrefix}_postAuthManual`] || ''}
+          onCommentChange={(comment) => onCommentChange?.(`${scenarioPrefix}_postAuthManual`, comment)}
           showHideCheckbox
           isHidden={isFieldHidden('postAuthManual')}
           onHideChange={(hidden) => toggleHidden('postAuthManual', hidden)}
@@ -126,6 +136,8 @@ export default function ScenarioInputs({
           onChange={(v) => updateField('3dsUsage', v)}
           isPercentage
           step={1}
+          comment={comments?.[`${scenarioPrefix}_3dsUsage`] || ''}
+          onCommentChange={(comment) => onCommentChange?.(`${scenarioPrefix}_3dsUsage`, comment)}
           showHideCheckbox
           isHidden={isFieldHidden('3dsUsage')}
           onHideChange={(hidden) => toggleHidden('3dsUsage', hidden)}
@@ -138,6 +150,8 @@ export default function ScenarioInputs({
           onChange={(v) => updateField('3dsError', v)}
           isPercentage
           step={0.01}
+          comment={comments?.[`${scenarioPrefix}_3dsError`] || ''}
+          onCommentChange={(comment) => onCommentChange?.(`${scenarioPrefix}_3dsError`, comment)}
           showHideCheckbox
           isHidden={isFieldHidden('3dsError')}
           onHideChange={(hidden) => toggleHidden('3dsError', hidden)}
@@ -149,6 +163,8 @@ export default function ScenarioInputs({
           value={inputs.authRate}
           onChange={(v) => updateField('authRate', v)}
           isPercentage
+          comment={comments?.[`${scenarioPrefix}_authRate`] || ''}
+          onCommentChange={(comment) => onCommentChange?.(`${scenarioPrefix}_authRate`, comment)}
           showHideCheckbox
           isHidden={isFieldHidden('authRate')}
           onHideChange={(hidden) => toggleHidden('authRate', hidden)}
@@ -161,6 +177,8 @@ export default function ScenarioInputs({
           onChange={(v) => updateField('chargebackRate', v)}
           isPercentage
           step={0.0001}
+          comment={comments?.[`${scenarioPrefix}_chargebackRate`] || ''}
+          onCommentChange={(comment) => onCommentChange?.(`${scenarioPrefix}_chargebackRate`, comment)}
           showHideCheckbox
           isHidden={isFieldHidden('chargebackRate')}
           onHideChange={(hidden) => toggleHidden('chargebackRate', hidden)}
@@ -171,6 +189,8 @@ export default function ScenarioInputs({
           label={t.fixedFee}
           value={inputs.fixedFee}
           onChange={(v) => updateField('fixedFee', v)}
+          comment={comments?.[`${scenarioPrefix}_fixedFee`] || ''}
+          onCommentChange={(comment) => onCommentChange?.(`${scenarioPrefix}_fixedFee`, comment)}
           showHideCheckbox
           isHidden={isFieldHidden('fixedFee')}
           onHideChange={(hidden) => toggleHidden('fixedFee', hidden)}
@@ -183,6 +203,8 @@ export default function ScenarioInputs({
           onChange={(v) => updateField('percentageFee', v)}
           isPercentage
           step={0.01}
+          comment={comments?.[`${scenarioPrefix}_percentageFee`] || ''}
+          onCommentChange={(comment) => onCommentChange?.(`${scenarioPrefix}_percentageFee`, comment)}
           showHideCheckbox
           isHidden={isFieldHidden('percentageFee')}
           onHideChange={(hidden) => toggleHidden('percentageFee', hidden)}
@@ -199,6 +221,8 @@ export default function ScenarioInputs({
           label={t.perTransactionCost}
           value={inputs.perTransactionCost}
           onChange={(v) => updateField('perTransactionCost', v)}
+          comment={comments?.[`${scenarioPrefix}_perTransactionCost`] || ''}
+          onCommentChange={(comment) => onCommentChange?.(`${scenarioPrefix}_perTransactionCost`, comment)}
           showHideCheckbox
           isHidden={isFieldHidden('perTransactionCost')}
           onHideChange={(hidden) => toggleHidden('perTransactionCost', hidden)}
@@ -209,6 +233,8 @@ export default function ScenarioInputs({
           label={t.manualReviewCost}
           value={inputs.manualReviewCost}
           onChange={(v) => updateField('manualReviewCost', v)}
+          comment={comments?.[`${scenarioPrefix}_manualReviewCost`] || ''}
+          onCommentChange={(comment) => onCommentChange?.(`${scenarioPrefix}_manualReviewCost`, comment)}
           showHideCheckbox
           isHidden={isFieldHidden('manualReviewCost')}
           onHideChange={(hidden) => toggleHidden('manualReviewCost', hidden)}

@@ -43,7 +43,7 @@ export default function InputField({
 }: InputFieldProps) {
   const [displayValue, setDisplayValue] = useState('')
   const [isFocused, setIsFocused] = useState(false)
-  const [showCommentField, setShowCommentField] = useState(!!comment)
+  const [showCommentField, setShowCommentField] = useState(!!comment && comment.trim() !== '')
   const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -55,6 +55,15 @@ export default function InputField({
       }
     }
   }, [value, isPercentage, isFocused])
+
+  // Update showCommentField when comment prop changes
+  useEffect(() => {
+    if (comment && comment.trim()) {
+      setShowCommentField(true)
+    }
+    // Note: We don't automatically hide the field when comment is empty
+    // to allow users to type new comments
+  }, [comment])
 
   const handleFocus = () => {
     setIsFocused(true)
