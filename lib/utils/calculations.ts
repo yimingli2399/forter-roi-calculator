@@ -39,6 +39,8 @@ export interface CostData {
   threeDS: number
   manualReview: number
   tool: number
+  toolJudgmentCost?: number // 判定費用: Fixed Fee + Per Transaction Cost
+  toolCompensationCost?: number // 補填費用: Percentage Fee Component
   total: number
 }
 
@@ -104,6 +106,8 @@ export function calculateScenario(
       threeDS: 0,
       manualReview: 0,
       tool: 0,
+      toolJudgmentCost: 0,
+      toolCompensationCost: 0,
       total: 0,
     },
     scenarioInputs,
@@ -130,10 +134,17 @@ export function calculateCosts(
     percentageFeeComponent = results.revenue.conservative * (results.scenarioInputs.percentageFee / 100)
   }
 
-  results.costs.tool =
+  // 判定費用: Fixed Fee + Per Transaction Cost
+  results.costs.toolJudgmentCost =
     results.scenarioInputs.fixedFee +
-    percentageFeeComponent +
     annualAttempts * results.scenarioInputs.perTransactionCost
+
+  // 補填費用: Percentage Fee Component
+  results.costs.toolCompensationCost = percentageFeeComponent
+
+  results.costs.tool =
+    results.costs.toolJudgmentCost +
+    results.costs.toolCompensationCost
 
   results.costs.total =
     results.costs.chargeback + results.costs.threeDS + results.costs.manualReview + results.costs.tool

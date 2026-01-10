@@ -48,6 +48,8 @@ export const translations = {
     threeDSCostItem: '3DS Cost',
     manualReviewCostItem: 'Manual Review Cost',
     toolCostItem: 'Vendor Cost',
+    toolJudgmentCost: 'Judgment Cost',
+    toolCompensationCost: 'Compensation Cost',
     totalCost: 'Total Cost',
     funnel: {
       totalAttempts: 'Total Attempts',
@@ -111,6 +113,8 @@ export const translations = {
     threeDSCostItem: '3DS コスト',
     manualReviewCostItem: '目検コスト',
     toolCostItem: 'ベンダーコスト',
+    toolJudgmentCost: '判定費用',
+    toolCompensationCost: '補填費用',
     totalCost: '総費用',
     funnel: {
       totalAttempts: '支払い試行',

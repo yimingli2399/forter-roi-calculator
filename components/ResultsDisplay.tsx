@@ -176,6 +176,23 @@ export default function ResultsDisplay({ base, comp, lang, t }: ResultsDisplayPr
                   {formatCurrency(comp.costs.tool - base.costs.tool, lang)}
                 </td>
               </tr>
+              {/* ベンダーコスト内訳 */}
+              <tr className="border-b">
+                <td className="p-2 pl-6 text-sm text-gray-600">{t.toolJudgmentCost}</td>
+                <td className="p-2 text-sm">{formatCurrency(base.costs.toolJudgmentCost || 0, lang)}</td>
+                <td className="p-2 text-sm">{formatCurrency(comp.costs.toolJudgmentCost || 0, lang)}</td>
+                <td className={`p-2 text-sm ${(comp.costs.toolJudgmentCost || 0) - (base.costs.toolJudgmentCost || 0) >= 0 ? 'text-red-600' : 'text-green-600'}`}>
+                  {formatCurrency((comp.costs.toolJudgmentCost || 0) - (base.costs.toolJudgmentCost || 0), lang)}
+                </td>
+              </tr>
+              <tr className="border-b">
+                <td className="p-2 pl-6 text-sm text-gray-600">{t.toolCompensationCost}</td>
+                <td className="p-2 text-sm">{formatCurrency(base.costs.toolCompensationCost || 0, lang)}</td>
+                <td className="p-2 text-sm">{formatCurrency(comp.costs.toolCompensationCost || 0, lang)}</td>
+                <td className={`p-2 text-sm ${(comp.costs.toolCompensationCost || 0) - (base.costs.toolCompensationCost || 0) >= 0 ? 'text-red-600' : 'text-green-600'}`}>
+                  {formatCurrency((comp.costs.toolCompensationCost || 0) - (base.costs.toolCompensationCost || 0), lang)}
+                </td>
+              </tr>
               <tr className="font-bold bg-gray-100 text-lg">
                 <td className="p-2">{t.totalCost}</td>
                 <td className="p-2">{formatCurrency(base.costs.total, lang)}</td>
